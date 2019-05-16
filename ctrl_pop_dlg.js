@@ -506,7 +506,7 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				}
 			}
 		};
-
+		
 		if(($scope.celltype == "") || ($scope.celltype == null)){
 			$scope.celltype = "IF_curr_alpha";
 		}
@@ -1220,5 +1220,32 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 			}, 100); // close, but give 100ms for bootstrap to animate
 			$('.modal-backdrop').remove();
 		};
+		// $scope.updateDist('v_rest',$scope.v_rest_dist);
+		// $scope.updateDist('param_cm',$scope.param_cm_dist);
+		// $scope.updateDist('param_tau_m',$scope.param_tau_m_dist);
+		// $scope.updateDist('param_tau_refrac',$scope.param_tau_refrac_dist);
+		// $scope.updateDist('param_tau_syn_E',$scope.param_tau_syn_E_dist);
+		// $scope.updateDist('param_tau_syn_I',$scope.param_tau_syn_I_dist);
+		// $scope.updateDist('param_i_offset',$scope.param_i_offset_dist);
+		// $scope.updateDist('param_v_reset',$scope.param_v_reset_dist);
+		// $scope.updateDist('param_v_thresh',$scope.param_v_thresh_dist);
+		// $scope.updateDist('param_e_rev_E',$scope.param_e_rev_E_dist);
+		// $scope.updateDist('param_e_rev_I',$scope.param_e_rev_I_dist);
+		// $scope.updateDist('param_gbar_Na',$scope.param_gbar_Na_dist);
+		// $scope.updateDist('param_gbar_K',$scope.param_gbar_K_dist);
+		// $scope.updateDist('param_g_leak',$scope.param_g_leak_dist);
+		// $scope.updateDist('param_v_offset',$scope.param_v_offset_dist);
+		// $scope.updateDist('param_e_rev_Na',$scope.param_e_rev_Na_dist);
+		// $scope.updateDist('param_e_rev_K',$scope.param_e_rev_K_dist);
+		// $scope.updateDist('param_v_spike',$scope.param_v_spike_dist);
+		// $scope.updateDist('param_a',$scope.param_a_dist);
+		// $scope.updateDist('param_b',$scope.param_b_dist);
+		// $scope.updateDist('param_delta_T',$scope.param_delta_T_dist);
+		// $scope.updateDist('param_tau_w',$scope.param_tau_w_dist);
+		// $scope.updateDist('init_v',$scope.init_v_dist);
+		// $scope.updateDist('init_w',$scope.init_w_dist);
+		// $scope.updateDist('param_rate',$scope.param_rate_dist);
+		// $scope.updateDist('param_start',$scope.param_start_dist);
+		// $scope.updateDist('param_duration',$scope.param_duration_dist);
 	}
 ]);

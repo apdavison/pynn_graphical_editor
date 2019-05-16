@@ -54,16 +54,16 @@
                         <div class="form-group col-sm-12">
                             <div class="btn-group btn-group-sm pull-right">
                                 <form>
-                                    <label class="btn btn-default fab fa-neos v_rest_dist_0 active">
+                                    <label class="btn btn-default fab fa-neos v_rest_dist_0" ng-class="{'active': v_rest_dist == 0}">
                                         <input class="hide_radio" type="radio" ng-model="v_rest_dist" ng-change="updateDist('v_rest', 0)" value="0" checked>
                                     </label>
-                                    <label class="btn btn-default fas fa-signal v_rest_dist_1">
+                                    <label class="btn btn-default fas fa-signal v_rest_dist_1" ng-class="{'active': v_rest_dist == 1}">
                                         <input class="hide_radio" type="radio" ng-model="v_rest_dist" ng-change="updateDist('v_rest', 1)" value="1">
                                     </label>
-                                    <label class="btn btn-default fas fa-square-root-alt v_rest_dist_2">
+                                    <label class="btn btn-default fas fa-square-root-alt v_rest_dist_2" ng-class="{'active': v_rest_dist == 2}">
                                         <input class="hide_radio" type="radio" ng-model="v_rest_dist" ng-change="updateDist('v_rest', 2)" value="2">
                                     </label>
-                                    <label class="btn btn-default fas fa-th v_rest_dist_3">
+                                    <label class="btn btn-default fas fa-th v_rest_dist_3" ng-class="{'active': v_rest_dist == 3}">
                                         <input class="hide_radio" type="radio" ng-model="v_rest_dist" ng-change="updateDist('v_rest', 3)" value="3">
                                     </label>
                                 </form>
