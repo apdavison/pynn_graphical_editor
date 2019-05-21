@@ -450,6 +450,10 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				for (var i = 0; i < elm.length; i++) {
 					elm[i].classList.remove("active");
 				}
+				var elm = document.getElementsByClassName(class_param + "_dist_4");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
 			}
 			if(dist == 1){
 				var elm = document.getElementsByClassName(class_param + "_dist_0");
@@ -465,6 +469,10 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 					elm[i].classList.remove("active");
 				}
 				var elm = document.getElementsByClassName(class_param + "_dist_3");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
+				var elm = document.getElementsByClassName(class_param + "_dist_4");
 				for (var i = 0; i < elm.length; i++) {
 					elm[i].classList.remove("active");
 				}
@@ -486,6 +494,10 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				for (var i = 0; i < elm.length; i++) {
 					elm[i].classList.remove("active");
 				}
+				var elm = document.getElementsByClassName(class_param + "_dist_4");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
 			}
 			if(dist == 3){
 				var elm = document.getElementsByClassName(class_param + "_dist_0");
@@ -504,9 +516,35 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				for (var i = 0; i < elm.length; i++) {
 					elm[i].classList.add("active");
 				}
+				var elm = document.getElementsByClassName(class_param + "_dist_4");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
 			}
-		};
-		
+			if(dist == 4){
+				var elm = document.getElementsByClassName(class_param + "_dist_0");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
+				var elm = document.getElementsByClassName(class_param + "_dist_1");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
+				var elm = document.getElementsByClassName(class_param + "_dist_2");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
+				var elm = document.getElementsByClassName(class_param + "_dist_3");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.remove("active");
+				}
+				var elm = document.getElementsByClassName(class_param + "_dist_4");
+				for (var i = 0; i < elm.length; i++) {
+					elm[i].classList.add("active");
+				}
+			};
+		}
+
 		if(($scope.celltype == "") || ($scope.celltype == null)){
 			$scope.celltype = "IF_curr_alpha";
 		}
