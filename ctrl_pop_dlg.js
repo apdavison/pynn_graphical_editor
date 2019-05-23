@@ -881,6 +881,58 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				$scope.msgAlert = "init_w f(x) value is required.";	
 			}
 
+			else if(($scope.param_rate_dist == "1") && (($scope.param_rate_distribution == "") || ($scope.param_rate_distribution == null))){
+				$scope.msgAlert = "rate Distribution value is required.";	
+			}
+			else if(($scope.param_rate_dist == "1") && (($scope.param_rate_p1 == "") || ($scope.param_rate_p1 == null))){
+				$scope.msgAlert = "rate p1 value is required.";	
+			}
+			else if(($scope.param_rate_dist == "1") && (($scope.param_rate_p2 == "") || ($scope.param_rate_p2 == null))){
+				$scope.msgAlert = "rate p2 value is required.";	
+			}
+			else if(($scope.param_rate_dist == "2") && (($scope.param_rate_fx == "") || ($scope.param_rate_fx == null))){
+				$scope.msgAlert = "rate f(x) value is required.";	
+			}
+
+			else if(($scope.param_start_dist == "1") && (($scope.param_start_distribution == "") || ($scope.param_start_distribution == null))){
+				$scope.msgAlert = "start Distribution value is required.";	
+			}
+			else if(($scope.param_start_dist == "1") && (($scope.param_start_p1 == "") || ($scope.param_start_p1 == null))){
+				$scope.msgAlert = "start p1 value is required.";	
+			}
+			else if(($scope.param_start_dist == "1") && (($scope.param_start_p2 == "") || ($scope.param_start_p2 == null))){
+				$scope.msgAlert = "start p2 value is required.";	
+			}
+			else if(($scope.param_start_dist == "2") && (($scope.param_start_fx == "") || ($scope.param_start_fx == null))){
+				$scope.msgAlert = "start f(x) value is required.";	
+			}
+
+			else if(($scope.param_duration_dist == "1") && (($scope.param_duration_distribution == "") || ($scope.param_duration_distribution == null))){
+				$scope.msgAlert = "duration Distribution value is required.";	
+			}
+			else if(($scope.param_duration_dist == "1") && (($scope.param_duration_p1 == "") || ($scope.param_duration_p1 == null))){
+				$scope.msgAlert = "duration p1 value is required.";	
+			}
+			else if(($scope.param_duration_dist == "1") && (($scope.param_duration_p2 == "") || ($scope.param_duration_p2 == null))){
+				$scope.msgAlert = "duration p2 value is required.";	
+			}
+			else if(($scope.param_duration_dist == "2") && (($scope.param_duration_fx == "") || ($scope.param_duration_fx == null))){
+				$scope.msgAlert = "duration f(x) value is required.";	
+			}
+
+			else if(($scope.param_spike_times_dist == "1") && (($scope.param_spike_times_distribution == "") || ($scope.param_spike_times_distribution == null))){
+				$scope.msgAlert = "spike_times Distribution value is required.";	
+			}
+			else if(($scope.param_spike_times_dist == "1") && (($scope.param_spike_times_p1 == "") || ($scope.param_spike_times_p1 == null))){
+				$scope.msgAlert = "spike_times p1 value is required.";	
+			}
+			else if(($scope.param_spike_times_dist == "1") && (($scope.param_spike_times_p2 == "") || ($scope.param_spike_times_p2 == null))){
+				$scope.msgAlert = "spike_times p2 value is required.";	
+			}
+			else if(($scope.param_spike_times_dist == "2") && (($scope.param_spike_times_fx == "") || ($scope.param_spike_times_fx == null))){
+				$scope.msgAlert = "spike_times f(x) value is required.";	
+			}
+
 			else {
 				$scope.close();
 			}
