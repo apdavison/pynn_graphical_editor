@@ -3495,6 +3495,22 @@
                                     <b>Matrix</b>
                                 </div>
                             </span>
+                            <span ng-show="param_spike_times_dist == '4'">
+                                <label class="control-label col-sm-2">Upload file :</label>
+                                <div class="col-sm-3">
+                                    <!-- <button type="button" ng-click="openSpikeTimeFile()" class="btn">Open spike time file</button> -->
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="inputGroupFile01"
+                                            aria-describedby="inputGroupFileAddon01">
+                                            <label class="custom-file-label" for="inputGroupFile01">Open spike time file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </span>
                             <div class="btn-group btn-group-sm pull-right">
                                 <label class="btn btn-default fab fa-neos param_spike_times_dist_0" ng-class="{'active': param_spike_times_dist == 0}">
                                     <input class="hide_radio" type="radio" ng-model="param_spike_times_dist" ng-change="updateDist('param_spike_times', 0)" value="0" checked>
@@ -3509,7 +3525,7 @@
                                     <input class="hide_radio" type="radio" ng-model="param_spike_times_dist" ng-change="updateDist('param_spike_times', 3)" value="3">
                                 </label>
                                 <label class="btn btn-default fas fa-file-csv param_spike_times_dist_4" ng-class="{'active': param_spike_times_dist == 4}">
-                                    <input class="hide_radio" type="radio" ng-model="param_spike_times_dist" ng-change="updateDist('param_spike_times', 4)" value="3">
+                                    <input class="hide_radio" type="radio" ng-model="param_spike_times_dist" ng-change="updateDist('param_spike_times', 4)" value="4">
                                 </label>
                             </div>
                         </div>
