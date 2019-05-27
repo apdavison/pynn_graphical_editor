@@ -3496,19 +3496,10 @@
                                 </div>
                             </span>
                             <span ng-show="param_spike_times_dist == '4'">
-                                <label class="control-label col-sm-2">Upload file :</label>
+                                <label class="control-label col-sm-2" for="upload_file">Upload file :</label>
                                 <div class="col-sm-3">
-                                    <!-- <button type="button" ng-click="openSpikeTimeFile()" class="btn">Open spike time file</button> -->
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
-                                        </div>
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="inputGroupFile01"
-                                            aria-describedby="inputGroupFileAddon01">
-                                            <label class="custom-file-label" for="inputGroupFile01">Open spike time file</label>
-                                        </div>
-                                    </div>
+                                    <!-- <label for="exampleFormControlFile1">Example file input</label> -->
+                                    <input class="btn" type="file" class="form-control-file" id="upload_file" ng-model="upload_file">
                                 </div>
                             </span>
                             <div class="btn-group btn-group-sm pull-right">
