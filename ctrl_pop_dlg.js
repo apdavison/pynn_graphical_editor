@@ -35,9 +35,9 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 'Recording_v', 
 'Simulation_time', 
 'Simulation_name', 
-'param_rate_dist', 'param_rate', 'param_rate_p1', 'param_rate_p2', 'param_rate_fx',
-'param_start_dist', 'param_start', 'param_start_p1', 'param_start_p2', 'param_start_fx',
-'param_duration_dist', 'param_duration', 'param_duration_p1', 'param_duration_p2', 'param_duration_fx',
+'param_rate_dist', 'param_rate', 'param_rate_distribution', 'param_rate_p1', 'param_rate_p2', 'param_rate_fx',
+'param_start_dist', 'param_start', 'param_start_distribution', 'param_start_p1', 'param_start_p2', 'param_start_fx',
+'param_duration_dist', 'param_duration','param_duration_distribution', 'param_duration_p1', 'param_duration_p2', 'param_duration_fx',
 	function($scope, $element, title, close, name_value, size, celltype,
 		v_rest_dist, param_v_rest_dist, param_v_rest, param_v_rest_distribution, param_v_rest_p1, param_v_rest_p2, param_v_rest_fx,
 		param_cm_dist, param_cm, param_cm_distribution, param_cm_p1, param_cm_p2, param_cm_fx,
@@ -73,9 +73,9 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		Recording_v, 
 		Simulation_time, 
 		Simulation_name, 
-		param_rate_dist, param_rate, param_rate_p1, param_rate_p2, param_rate_fx,
-		param_start_dist, param_start, param_start_p1, param_start_p2, param_start_fx,
-		param_duration_dist, param_duration, param_duration_p1, param_duration_p2, param_duration_fx) {
+		param_rate_dist, param_rate, param_rate_distribution, param_rate_p1, param_rate_p2, param_rate_fx,
+		param_start_dist, param_start, param_start_distribution, param_start_p1, param_start_p2, param_start_fx,
+		param_duration_dist, param_duration, param_duration_distribution, param_duration_p1, param_duration_p2, param_duration_fx) {
 				
 		$scope.title = title;
 		$scope.name_value = name_value;
@@ -244,16 +244,19 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		$scope.Simulation_name = Simulation_name;
 		$scope.param_rate_dist = param_rate_dist;
 		$scope.param_rate = param_rate;
+		$scope.param_rate_distribution = param_rate_distribution;
 		$scope.param_rate_p1 = param_rate_p1;
 		$scope.param_rate_p2 = param_rate_p2;
 		$scope.param_rate_fx = param_rate_fx;
 		$scope.param_start_dist = param_start_dist;
 		$scope.param_start = param_start;
+		$scope.param_start_distribution = param_start_distribution;
 		$scope.param_start_p1 = param_start_p1;
 		$scope.param_start_p2 = param_start_p2;
 		$scope.param_start_fx = param_start_fx;
 		$scope.param_duration_dist = param_duration_dist;
 		$scope.param_duration = param_duration;
+		$scope.param_duration_distribution = param_duration_distribution;
 		$scope.param_duration_p1 = param_duration_p1;
 		$scope.param_duration_p2 = param_duration_p2;
 		$scope.param_duration_fx = param_duration_fx;
@@ -1105,16 +1108,19 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				Simulation_name: $scope.Simulation_name,
 				param_rate_dist: $scope.param_rate_dist,
 				param_rate: $scope.param_rate,
+				param_rate_distribution: $scope.param_rate_distribution,
 				param_rate_p1: $scope.param_rate_p1,
 				param_rate_p2: $scope.param_rate_p2,
 				param_rate_fx: $scope.param_rate_fx,
 				param_start_dist: $scope.param_start_dist,
 				param_start: $scope.param_start,
+				param_start_distribution: $scope.param_start_distribution,
 				param_start_p1: $scope.param_start_p1,
 				param_start_p2: $scope.param_start_p2,
 				param_start_fx: $scope.param_start_fx,
 				param_duration_dist: $scope.param_duration_dist,
 				param_duration: $scope.param_duration,
+				param_duration_distribution: $scope.param_duration_distribution,
 				param_duration_p1: $scope.param_duration_p1,
 				param_duration_p2: $scope.param_duration_p2,
 				param_duration_fx: $scope.param_duration_fx,
@@ -1294,16 +1300,19 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				Simulation_name: $scope.Simulation_name,
 				param_rate_dist: $scope.param_rate_dist,
 				param_rate: $scope.param_rate,
+				param_rate_distribution: $scope.param_rate_distribution,
 				param_rate_p1: $scope.param_rate_p1,
 				param_rate_p2: $scope.param_rate_p2,
 				param_rate_fx: $scope.param_rate_fx,
 				param_start_dist: $scope.param_start_dist,
 				param_start: $scope.param_start,
+				param_start_distribution: $scope.param_start_distribution,
 				param_start_p1: $scope.param_start_p1,
 				param_start_p2: $scope.param_start_p2,
 				param_start_fx: $scope.param_start_fx,
 				param_duration_dist: $scope.param_duration_dist,
 				param_duration: $scope.param_duration,
+				param_duration_distribution: $scope.param_duration_distribution,
 				param_duration_p1: $scope.param_duration_p1,
 				param_duration_p2: $scope.param_duration_p2,
 				param_duration_fx: $scope.param_duration_fx,
