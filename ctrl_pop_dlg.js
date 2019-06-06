@@ -262,6 +262,13 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		$scope.param_duration_p1 = param_duration_p1;
 		$scope.param_duration_p2 = param_duration_p2;
 		$scope.param_duration_fx = param_duration_fx;
+		$scope.param_spike_times_dist = param_spike_times_dist;
+		$scope.param_spike_times = param_spike_times;
+		$scope.param_spike_times_distribution = param_spike_times_distribution;
+		$scope.param_spike_times_p1 = param_spike_times_p1;
+		$scope.param_spike_times_p2 = param_spike_times_p2;
+		$scope.param_spike_times_fx = param_spike_times_fx;
+		$scope.param_spike_times_file = param_spike_times_file;
 
 		if(($scope.v_rest_dist == "") || ($scope.v_rest_dist == null)){
 			$scope.v_rest_dist = 0;
