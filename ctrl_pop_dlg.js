@@ -38,6 +38,7 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 'param_rate_dist', 'param_rate', 'param_rate_distribution', 'param_rate_p1', 'param_rate_p2', 'param_rate_fx',
 'param_start_dist', 'param_start', 'param_start_distribution', 'param_start_p1', 'param_start_p2', 'param_start_fx',
 'param_duration_dist', 'param_duration','param_duration_distribution', 'param_duration_p1', 'param_duration_p2', 'param_duration_fx',
+'param_spike_times_dist','param_spike_times','param_spike_times_distribution','param_spike_times_p1','param_spike_times_p2', 'param_spike_times_fx', 'param_spike_times_file',
 	function($scope, $element, title, close, name_value, size, celltype,
 		v_rest_dist, param_v_rest_dist, param_v_rest, param_v_rest_distribution, param_v_rest_p1, param_v_rest_p2, param_v_rest_fx,
 		param_cm_dist, param_cm, param_cm_distribution, param_cm_p1, param_cm_p2, param_cm_fx,
@@ -75,8 +76,9 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		Simulation_name, 
 		param_rate_dist, param_rate, param_rate_distribution, param_rate_p1, param_rate_p2, param_rate_fx,
 		param_start_dist, param_start, param_start_distribution, param_start_p1, param_start_p2, param_start_fx,
-		param_duration_dist, param_duration, param_duration_distribution, param_duration_p1, param_duration_p2, param_duration_fx) {
-				
+		param_duration_dist, param_duration, param_duration_distribution, param_duration_p1, param_duration_p2, param_duration_fx,
+		param_spike_times_dist, param_spike_times, param_spike_times_distribution, param_spike_times_p1, param_spike_times_p2, param_spike_times_fx, param_spike_times_file) {
+
 		$scope.title = title;
 		$scope.name_value = name_value;
 		// $scope.level = level;
@@ -431,7 +433,7 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				if(($scope.param_duration == "") || ($scope.param_duration == null)){ $scope.param_duration = 10000000000; }
 			}
 			if($scope.celltype == "SpikeSourceArray"){
-				if(($scope.param_duration == "") || ($scope.param_duration == null)){ $scope.param_duration = 10000000000; }
+				if(($scope.param_spike_times == "") || ($scope.param_spike_times == null)){ $scope.param_spike_times = 1000; }
 			}
 		};
 
@@ -1124,6 +1126,14 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				param_duration_p1: $scope.param_duration_p1,
 				param_duration_p2: $scope.param_duration_p2,
 				param_duration_fx: $scope.param_duration_fx,
+				param_spike_times_dist: $scope.param_spike_times_dist,
+				param_spike_times: $scope.param_spike_times,
+				param_spike_times_distribution: $scope.param_spike_times_distribution,
+				param_spike_times_p1: $scope.param_spike_times_p1,
+				param_spike_times_p2: $scope.param_spike_times_p2,
+				param_spike_times_fx: $scope.param_spike_times_fx,
+
+				param_spike_times_file: $scope.param_spike_times_file,
 			}, 100);
 			$('.modal-backdrop').remove();
 		};
@@ -1316,6 +1326,14 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				param_duration_p1: $scope.param_duration_p1,
 				param_duration_p2: $scope.param_duration_p2,
 				param_duration_fx: $scope.param_duration_fx,
+				param_spike_times_dist: $scope.param_spike_times_dist,
+				param_spike_times: $scope.param_spike_times,
+				param_spike_times_distribution: json_data.param_spike_times_distribution,
+				param_spike_times_p1: $scope.param_spike_times_p1,
+				param_spike_times_p2: $scope.param_spike_times_p2,
+				param_spike_times_fx: $scope.param_spike_times_fx,
+				param_spike_times_file: $scope.param_spike_times_file,
+
 			}, 100); // close, but give 100ms for bootstrap to animate
 			$('.modal-backdrop').remove();
 		};
