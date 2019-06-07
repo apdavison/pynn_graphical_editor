@@ -1139,7 +1139,6 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				param_spike_times_p1: $scope.param_spike_times_p1,
 				param_spike_times_p2: $scope.param_spike_times_p2,
 				param_spike_times_fx: $scope.param_spike_times_fx,
-
 				param_spike_times_file: $scope.param_spike_times_file,
 			}, 100);
 			$('.modal-backdrop').remove();
@@ -1340,7 +1339,6 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				param_spike_times_p2: $scope.param_spike_times_p2,
 				param_spike_times_fx: $scope.param_spike_times_fx,
 				param_spike_times_file: $scope.param_spike_times_file,
-
 			}, 100); // close, but give 100ms for bootstrap to animate
 			$('.modal-backdrop').remove();
 		};
