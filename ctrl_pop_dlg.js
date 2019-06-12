@@ -945,6 +945,10 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				$scope.msgAlert = "spike_times f(x) value is required.";	
 			}
 
+			else if(($scope.param_spike_times_dist == "4") && (($scope.param_spike_times_file == "") || ($scope.param_spike_times_file == null))){
+				$scope.msgAlert = "spike_times file is required.";	
+			}
+
 			else {
 				$scope.close();
 			}
