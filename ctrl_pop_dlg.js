@@ -562,8 +562,8 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		}
 
 		$scope.loadFile = function(filename){
-			console.log("file : " + filename + "\n");
-			
+			console.log("file : " + filename.files[0] + "\n");
+			$scope.param_spike_times_file = filename.files[0].name;
 		};
 		$scope.beforeClose = function(){
 			if(($scope.name_value == "") || ($scope.name_value == null)){
