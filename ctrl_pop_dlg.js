@@ -575,12 +575,10 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 				r.readAsText(f, "UTF-8");
 				r.onload = function (evt) {
 					console.log("file content : " + evt.target.result + "\n");
-					// document.getElementById("fileContents").innerHTML = evt.target.result;
 					$scope.param_spike_times_file_content = evt.target.result;
 				}
 				r.onerror = function (evt) {
 					console.log("error reading file \n");
-					// document.getElementById("fileContents").innerHTML = "error reading file";
 					$scope.param_spike_times_file_content = "error reading file";
 				}
 			}
