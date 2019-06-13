@@ -269,6 +269,7 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		$scope.param_spike_times_p2 = param_spike_times_p2;
 		$scope.param_spike_times_fx = param_spike_times_fx;
 		$scope.param_spike_times_file = param_spike_times_file;
+		$scope.param_spike_times_file_content = param_spike_times_file_content;
 
 		if(($scope.v_rest_dist == "") || ($scope.v_rest_dist == null)){
 			$scope.v_rest_dist = 0;
@@ -564,6 +565,22 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		$scope.loadFile = function(filename){
 			console.log("file : " + filename.files[0] + "\n");
 			$scope.param_spike_times_file = filename.files[0].name;
+
+			var f = document.getElementById("param_spike_times_file").files[0];
+			if (f) {
+				var r = new FileReader();
+				r.readAsText(f, "UTF-8");
+				r.onload = function (evt) {
+					console.log("file content : " + evt.target.result + "\n");
+					// document.getElementById("fileContents").innerHTML = evt.target.result;
+					$scope.param_spike_times_file_content = evt.target.result;
+				}
+				r.onerror = function (evt) {
+					console.log("error reading file \n");
+					// document.getElementById("fileContents").innerHTML = "error reading file";
+					$scope.param_spike_times_file_content = "error reading file";
+				}
+			}
 		};
 		$scope.beforeClose = function(){
 			if(($scope.name_value == "") || ($scope.name_value == null)){
@@ -951,7 +968,7 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 			}
 
 			else if(($scope.param_spike_times_dist == "4") && (($scope.param_spike_times_file == "") || ($scope.param_spike_times_file == null))){
-				$scope.msgAlert = "spike_times file is required.";	
+				$scope.msgAlert = "spike_times file is required.";
 			}
 
 			else {
