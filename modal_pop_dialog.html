@@ -3502,6 +3502,7 @@
                                     <!-- <input class="btn" type="file" ngf-select ng-model="param_spike_times_file" ngf-pattern="'.csv,.txt'" ngf-accept="text/csv, text/plain" class="form-control-file" id="param_spike_times_file"> -->
                                     <input class="btn" type="file" class="form-control-file" ng-model="param_spike_times_file" id="param_spike_times_file" accept="text/csv, text/plain" onchange="angular.element(this).scope().loadFile(this)">
                                     {{param_spike_times_file}}
+                                    {{param_spike_times_file_content}}
                                 </div>
                             </span>
                             <div class="btn-group btn-group-sm pull-right">

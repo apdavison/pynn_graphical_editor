@@ -361,6 +361,9 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 		if(($scope.param_spike_times_dist == "") || ($scope.param_spike_times_dist == null)){
 			$scope.param_spike_times_dist = 0;
 		}
+		if(($scope.param_spike_times_file_content == "")|| ($scope.param_spike_times_file_content == null)){
+			$scope.param_spike_times_file_content = "";
+		}
 		if($scope.celltype == "empty_no_edge"){
 			$scope.celltype = "IF_curr_alpha";
 		}
