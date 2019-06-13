@@ -555,11 +555,16 @@ graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title',
 					elm[i].classList.add("active");
 				}
 			};
-		}
-
+		};
+		
 		if(($scope.celltype == "") || ($scope.celltype == null)){
 			$scope.celltype = "IF_curr_alpha";
 		}
+
+		$scope.loadFile = function(filename){
+			console.log("file : " + filename + "\n");
+			
+		};
 		$scope.beforeClose = function(){
 			if(($scope.name_value == "") || ($scope.name_value == null)){
 				$scope.msgAlert = "Name is required.";
