@@ -842,6 +842,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 							param_spike_times_p2: json_data.param_spike_times_p2,
 							param_spike_times_fx: json_data.param_spike_times_fx,
 							param_spike_times_file: json_data.param_spike_times_file,
+							param_spike_times_file_content: $scope.param_spike_times_file_content,
 						}
 					}).then(function(modal) {
 						modal.element.modal();
