@@ -393,6 +393,24 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         synaptic_delay = param_synaptic_delay_fx;
                     }
 
+                    if(json_pop_param.param_spike_times_dist == 0){
+                        spike_times = json_pop_param.param_spike_times;
+                    }
+                    if(json_pop_param.param_spike_times_dist == 1){
+                        spike_times = "RandomDistribution('" +
+                        json_pop_param.param_spike_times_distribution+"', (" + 
+                        json_pop_param.param_spike_times_delay_p1 + ", " + 
+                        json_pop_param.param_spike_times_delay_p2 + 
+                        "))";
+                    }
+                    if(json_pop_param.param_spike_times_dist == 2){
+                        spike_times = json_pop_param.param_spike_times_fx;
+                    }
+                    if(json_pop_param.param_spike_times_dist == 4){
+                        //open file
+                        spike_times = json_pop_param.param_spike_times_file_content;
+                    }
+
                     if(json_pop_param.celltype == "IF_curr_alpha"){
                         str_inst += "pop_"+ val.id +" = " +
                         "sim.Population(" + json_pop_param.size + ", sim.IF_curr_alpha(v_rest="+param_v_rest +
@@ -535,7 +553,8 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         "))\n";
                     }
                     if(json_pop_param.celltype == "SpikeSourceArray"){
-                        str_inst += "";
+                        str_inst += "00";
+                        str_inst += spike_times;
                     }
                     if(json_pop_param.celltype == "projection"){
                         var synapse_type = json_pop_param.synapse_type
