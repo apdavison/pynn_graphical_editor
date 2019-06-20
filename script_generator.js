@@ -417,9 +417,12 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                             if(b.length > 0){
                                 spt_array[b[1]] += b[0]+",";
                                 spt_array[b[1]] = spt_array[b[1]].replace("undefined", "");
+                                //spt_array[b[1]] = spt_array[b[1]].substring(0, spt_array[b[1]].length-1);
                             }
                         });
-                        
+                        // angular.forEach(spt_array, function(c){
+                        //     console.log(c);
+                        // });
                         console.log(spt_array);
                     }
 
