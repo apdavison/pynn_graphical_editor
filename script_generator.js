@@ -415,15 +415,25 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                             b = a.split(" ");
                             console.log(b);
                             if(b.length > 0){
-                                spt_array[b[1]] += b[0]+",";
+                                var new_line = false;
+                                if(spt_array[b[1]] == null){
+                                    new_line = true;
+                                }
+                                if(new_line == false){
+                                    spt_array[b[1]] += ","+b[0];
+                                } else {
+                                    spt_array[b[1]] += b[0];
+                                }
                                 spt_array[b[1]] = spt_array[b[1]].replace("undefined", "");
-                                //spt_array[b[1]] = spt_array[b[1]].substring(0, spt_array[b[1]].length-1);
                             }
                         });
-                        // angular.forEach(spt_array, function(c){
-                        //     console.log(c);
-                        // });
-                        console.log(spt_array);
+                        //console.log(spt_array);
+                        var spike_times = "[";
+                        for(i=0; i<spt_array.length; i++){
+                            spike_times += "("+spt_array[i]+")";
+                        }
+                        spike_times += "]";
+                        console.log(spike_times);
                     }
 
                     if(json_pop_param.celltype == "IF_curr_alpha"){
@@ -568,8 +578,11 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         "))\n";
                     }
                     if(json_pop_param.celltype == "SpikeSourceArray"){
-                        str_inst += "00";
-                        str_inst += spike_times;
+                        //str_inst += "00";
+                        str_inst += "pop_"+ val.id + " = sim.Population(" + json_pop_param.size + ", sim.SpikeSourceArray(" +
+                        "" + spike_times +
+                        "))\n";
+                        //str_inst += spike_times;
                     }
                     if(json_pop_param.celltype == "projection"){
                         var synapse_type = json_pop_param.synapse_type
