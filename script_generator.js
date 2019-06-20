@@ -409,16 +409,18 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                     if(json_pop_param.param_spike_times_dist == 4){
                         //open file
                         spike_times_0 = json_pop_param.param_spike_times_file_content;
-                        //spike_times += "(";
                         spt = spike_times_0.split("\n");
                         var spt_array = new Array();
                         angular.forEach(spt, function(a){
                             b = a.split(" ");
                             console.log(b);
-                            spt_array[b[1]] += ","+b[0];
+                            if(b.length > 0){
+                                spt_array[b[1]] += b[0]+",";
+                                spt_array[b[1]] = spt_array[b[1]].replace("undefined", "");
+                            }
                         });
+                        
                         console.log(spt_array);
-                        //spike_times += ")";
                     }
 
                     if(json_pop_param.celltype == "IF_curr_alpha"){
