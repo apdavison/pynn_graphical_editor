@@ -427,13 +427,15 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                                 spt_array[b[1]] = spt_array[b[1]].replace("undefined", "");
                             }
                         });
-                        //console.log(spt_array);
                         var spike_times = "[";
                         for(i=0; i<spt_array.length; i++){
-                            spike_times += "("+spt_array[i]+")";
+                            if(i==spt_array.length-1){
+                                spike_times += "("+spt_array[i]+")";
+                            } else {
+                                spike_times += "("+spt_array[i]+"),";
+                            }
                         }
                         spike_times += "]";
-                        console.log(spike_times);
                     }
 
                     if(json_pop_param.celltype == "IF_curr_alpha"){
