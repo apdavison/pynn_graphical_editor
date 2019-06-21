@@ -393,6 +393,51 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         synaptic_delay = param_synaptic_delay_fx;
                     }
 
+                    if(json_pop_param.param_spike_times_dist == 0){
+                        spike_times = json_pop_param.param_spike_times;
+                    }
+                    if(json_pop_param.param_spike_times_dist == 1){
+                        spike_times = "RandomDistribution('" +
+                        json_pop_param.param_spike_times_distribution+"', (" + 
+                        json_pop_param.param_spike_times_delay_p1 + ", " + 
+                        json_pop_param.param_spike_times_delay_p2 + 
+                        "))";
+                    }
+                    if(json_pop_param.param_spike_times_dist == 2){
+                        spike_times = json_pop_param.param_spike_times_fx;
+                    }
+                    if(json_pop_param.param_spike_times_dist == 4){
+                        //open file
+                        spike_times_0 = json_pop_param.param_spike_times_file_content;
+                        spt = spike_times_0.split("\n");
+                        var spt_array = new Array();
+                        angular.forEach(spt, function(a){
+                            b = a.split(" ");
+                            console.log(b);
+                            if(b.length > 0){
+                                var new_line = false;
+                                if(spt_array[b[1]] == null){
+                                    new_line = true;
+                                }
+                                if(new_line == false){
+                                    spt_array[b[1]] += ","+b[0];
+                                } else {
+                                    spt_array[b[1]] += b[0];
+                                }
+                                spt_array[b[1]] = spt_array[b[1]].replace("undefined", "");
+                            }
+                        });
+                        var spike_times = "[";
+                        for(i=0; i<spt_array.length; i++){
+                            if(i==spt_array.length-1){
+                                spike_times += "("+spt_array[i]+")";
+                            } else {
+                                spike_times += "("+spt_array[i]+"),";
+                            }
+                        }
+                        spike_times += "]";
+                    }
+
                     if(json_pop_param.celltype == "IF_curr_alpha"){
                         str_inst += "pop_"+ val.id +" = " +
                         "sim.Population(" + json_pop_param.size + ", sim.IF_curr_alpha(v_rest="+param_v_rest +
@@ -535,7 +580,11 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         "))\n";
                     }
                     if(json_pop_param.celltype == "SpikeSourceArray"){
-                        str_inst += "";
+                        //str_inst += "00";
+                        str_inst += "pop_"+ val.id + " = sim.Population(" + json_pop_param.size + ", sim.SpikeSourceArray(" +
+                        "" + spike_times +
+                        "))\n";
+                        //str_inst += spike_times;
                     }
                     if(json_pop_param.celltype == "projection"){
                         var synapse_type = json_pop_param.synapse_type
