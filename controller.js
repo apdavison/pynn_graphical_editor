@@ -296,6 +296,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		//create element to display job status after submission
 		var job_status = document.createElement('div');
+		job_status.id = 'job_status';
 		job_status.classList.add("badge");
 		job_status.classList.add("badge-primary");
 		job_status.textContent = "Not submited yet";

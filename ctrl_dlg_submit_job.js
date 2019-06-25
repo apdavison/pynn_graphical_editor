@@ -65,12 +65,31 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 			console.log("Submitting job:");
 			console.log(job);
 			console.log(job_p);
+			var job_status = document.getElementById('job_status');
+			job_status.textContent = 'submitted';
+			job_status.classList.remove('badge-primary');
+			job_status.classList.remove('badge-danger');
+			job_status.classList.remove('badge-success');
+			job_status.classList.add('badge-info');
+
 			try {
 				jobService.post(job_p, function(data, status){
 					console.log("success : +" + data + "/" + status );
+					job_status.textContent = 'successed';
+					job_status.classList.remove('badge-primary');
+					job_status.classList.remove('badge-danger');
+					job_status.classList.remove('badge-info');
+					job_status.classList.add('badge-success');
+		
 				})
 			} catch(error) {
 				console.log("error : " + error);
+				job_status.textContent = 'failled';
+				job_status.classList.remove('badge-primary');
+				job_status.classList.remove('badge-success');
+				job_status.classList.remove('badge-info');
+				job_status.classList.add('badge-danger');
+
 			}
 			// .error(function(data, status){
 			//  	console.log("failled : +" + data + "/" + status );
