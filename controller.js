@@ -202,7 +202,14 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				message: "Are you sure to clear the graph ?",
 				callback: function(result){ /* result is a boolean; true = OK, false = Cancel*/
 					if(result == true){
+						// clear content of graph
 						graph.getModel().clear();
+						// update status
+						job_status.textContent = 'Not submited yet';
+						job_status.classList.remove('badge-danger');
+						job_status.classList.remove('badge-success');
+						job_status.classList.remove('badge-info');
+						job_status.classList.add('badge-primary');
 					}
 				}
 			});
