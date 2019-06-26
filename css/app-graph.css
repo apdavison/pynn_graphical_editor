@@ -137,6 +137,11 @@ table.mxPopupMenu tr {
 /* input[type=checkbox], input[type=radio]{
     display:none;
 } */
+
+#job_status{
+    margin-bottom: 30px;
+}
+
 .hide_radio {
     display: none;
 }
