@@ -129,7 +129,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		sp_tool_zoom_out.textContent = "Zoom Out";
 		sp_tool_zoom_out.className='tooltiptext2';
 
-
 		var button_save = mxUtils.button('', function(){
 			// var FileSaver = require('file-saver');
 			bootbox.prompt("Please give the name to the file (.xml extension added automatically) :", function(filename){
@@ -203,7 +202,14 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				message: "Are you sure to clear the graph ?",
 				callback: function(result){ /* result is a boolean; true = OK, false = Cancel*/
 					if(result == true){
+						// clear content of graph
 						graph.getModel().clear();
+						// update status
+						job_status.textContent = 'Not submited yet';
+						job_status.classList.remove('badge-danger');
+						job_status.classList.remove('badge-success');
+						job_status.classList.remove('badge-info');
+						job_status.classList.add('badge-primary');
 					}
 				}
 			});
@@ -260,7 +266,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		sp_tool_button_exp_python.textContent = "Export to Python";
 		sp_tool_button_exp_python.className='tooltiptext2';
 
-
 		//create a button to submit job
 		var button_submit = mxUtils.button('', function() {
 			var scriptText = "";
@@ -296,6 +301,13 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		sp_tool_button_submit.textContent = "Submit job";
 		sp_tool_button_submit.className='tooltiptext2';
 
+		//create element to display job status after submission
+		var job_status = document.createElement('div');
+		job_status.id = 'job_status';
+		job_status.classList.add("badge");
+		job_status.classList.add("badge-primary");
+		job_status.textContent = "Not submited yet";
+
 		//create toolbar
 		var div_toolbar = document.createElement('div');
 		div_toolbar.id = 'div_toolbar';
@@ -322,6 +334,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_exp_python.appendChild(sp_tool_button_exp_python);
 		div_toolbar.appendChild(button_submit);
 		button_submit.appendChild(sp_tool_button_submit);
+		div_toolbar.appendChild(job_status);
 
 		var container = document.createElement('div');
 		container.id = 'svg_container';
