@@ -931,6 +931,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					// Adds cells to the model in a single step
 					graph.getModel().endUpdate();
 				});
+			} else if(graph.getSelectionCount() > 1){
+				menu.addItem('Duplicate selection', null, function(){
+					
+				});
 			}
 		};
 	}
