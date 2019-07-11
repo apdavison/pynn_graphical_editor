@@ -933,7 +933,24 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				});
 			} else if(graph.getSelectionCount() > 1){
 				menu.addItem('Duplicate selection', null, function(){
-					
+					console.log("duplicate selection");
+					//cell = cell || graph.getSelectionCells();
+					var cell2 = [];
+					cells = graph.getSelectionCells();
+					for(i=0; i<cells.length; i++){
+						cell2[i] = cells[i];
+						var x = cell2[i].geometry.x;
+						var y = cell2[i].geometry.y;
+						x = x + 20;
+						y = y + 20;
+						cell2[i].geometry.x = x;
+						cell2[i].geometry.y = y;
+						var tabcell = new Array(cell2[i]);
+						graph.getModel().beginUpdate();
+						graph.addCells(graph.cloneCells(tabcell));
+						// Adds cells to the model in a single step
+						graph.getModel().endUpdate();
+					}
 				});
 			}
 		};
