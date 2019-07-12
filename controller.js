@@ -931,6 +931,23 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					// Adds cells to the model in a single step
 					graph.getModel().endUpdate();
 				});
+			} else if(graph.getSelectionCount() > 1){
+				menu.addItem('Duplicate selection', null, function(){
+					var cell2 = [];
+					cells = graph.getSelectionCells();
+					for(i=0; i<cells.length; i++){
+						cell2[i] = cells[i];
+						var x = cell2[i].geometry.x;
+						var y = cell2[i].geometry.y;
+						x = x + 20;
+						y = y + 20;
+						cell2[i].geometry.x = x;
+						cell2[i].geometry.y = y;
+					}
+					graph.getModel().beginUpdate();
+					graph.addCells(graph.cloneCells(cell2));
+					graph.getModel().endUpdate();
+				});
 			}
 		};
 	}
