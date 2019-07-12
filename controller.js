@@ -933,8 +933,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				});
 			} else if(graph.getSelectionCount() > 1){
 				menu.addItem('Duplicate selection', null, function(){
-					console.log("duplicate selection");
-					//cell = cell || graph.getSelectionCells();
 					var cell2 = [];
 					cells = graph.getSelectionCells();
 					for(i=0; i<cells.length; i++){
