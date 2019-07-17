@@ -1,7 +1,9 @@
 var graphSchemaApp = angular.module('graphSchemaApp');
 
-graphSchemaApp.controller('scotchController', function($scope) {
+graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
     $scope.message = 'test';
+
+	$scope.DataTransfert = DataTransfert;
 
     $scope.scotches = [
         {
@@ -19,7 +21,9 @@ graphSchemaApp.controller('scotchController', function($scope) {
     ];
 });
 
-graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string) {
+graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
+	
+	$scope.DataTransfert = DataTransfert;
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
 	{
@@ -954,3 +958,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 });
 
 
+graphSchemaApp.service('DataTransfert', function(){
+	this.xml_graph_data = "";
+});
