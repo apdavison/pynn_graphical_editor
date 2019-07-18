@@ -24,6 +24,7 @@ graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
 graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
 	
 	$scope.DataTransfert = DataTransfert;
+	
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
 	{
