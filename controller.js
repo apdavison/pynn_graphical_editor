@@ -22,9 +22,7 @@ graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
 });
 
 graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
-	
-	$scope.DataTransfert = DataTransfert;
-	
+
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
 	{
@@ -375,6 +373,13 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		// Enables rubberband selection
 		new mxRubberband(graph);
+
+		//keep graph when we change controller
+		$scope.DataTransfert = DataTransfert;
+		var encoder = new mxCodec();
+		var node = encoder.encode(graph.getModel());
+		$scope.DataTransfert = node;
+		//console.log(node);
 
 		// Gets the default parent for inserting new cells. This
 		// is normally the first child of the root (ie. layer 0).
