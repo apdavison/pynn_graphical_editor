@@ -18,7 +18,8 @@ graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
             name: 'Glenfiddich 1937',
             price: 20000
         }
-    ];
+	];
+	console.log("xml_graph_data : " + $scope.DataTransfert.xml_graph_data);
 });
 
 graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
@@ -29,6 +30,8 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// Displays an error message if the browser is not supported.
 		mxUtils.error('Browser is not supported!', 200, false);
 	} else {
+		$scope.DataTransfert = DataTransfert;
+		
 		// Enables guides
 		mxGraphHandler.prototype.guidesEnabled = true;
 
@@ -93,7 +96,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		sp_tool_img = document.createElement('span');
 		sp_tool_img.textContent = "drag and drop to create Population";
 		sp_tool_img.className='tooltiptext2';
-
 
 		// var img2 = mxUtils.createImage('img/gearRed.png');
 		// img2.style.width = '48px';
@@ -375,11 +377,36 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		new mxRubberband(graph);
 
 		//keep graph when we change controller
-		$scope.DataTransfert = DataTransfert;
-		var encoder = new mxCodec();
-		var node = encoder.encode(graph.getModel());
-		$scope.DataTransfert = node;
-		//console.log(node);
+		
+		// graph.addListener(mxEvent.ADD_CELLS, function(sender, evt){
+		// 	console.log("add cells");
+		// });
+
+		
+		console.log("xml_graph_data : " + $scope.DataTransfert.xml_graph_data);
+		if($scope.DataTransfert.xml_graph_data != null){
+			graph.getModel().clear();
+			// var xml = mxUtils.load('file_graph.xml');
+			// var xml = e.target.result;
+			var doc = mxUtils.parseXml($scope.DataTransfert.xml_graph_data);
+			var codec = new mxCodec(doc);
+			var elt = doc.documentElement.firstChild.firstChild;
+			var cells = [];
+			while (elt != null){
+				cells.push(codec.decodeCell(elt));
+				graph.refresh();
+				elt = elt.nextSibling;
+			}
+			graph.addCells(cells);
+		}
+
+		graph.addListener(mxEvent.CLICK, function(sender, evt){
+			//console.log("add click");
+			$scope.DataTransfert = DataTransfert;
+			var encoder = new mxCodec();
+			var node = encoder.encode(graph.getModel());
+			$scope.DataTransfert.xml_graph_data = node;
+		});
 
 		// Gets the default parent for inserting new cells. This
 		// is normally the first child of the root (ie. layer 0).
