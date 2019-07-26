@@ -19,7 +19,6 @@ graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
             price: 20000
         }
 	];
-	console.log("xml_graph_data : " + $scope.DataTransfert.xml_graph_data);
 });
 
 graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
@@ -140,7 +139,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				var encoder = new mxCodec();
 				var node = encoder.encode(graph.getModel());
 				var nodeText = new XMLSerializer().serializeToString(node);
-				console.log("nodeText" + nodeText);
 				var blob = new Blob([nodeText], {type: "text/plain;charset=utf-8"});
 				//in case of cancelation => filename == null
 				if(filename != null){
@@ -378,13 +376,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		new mxRubberband(graph);
 
 		//keep graph when we change controller
-		
-		// graph.addListener(mxEvent.ADD_CELLS, function(sender, evt){
-		// 	console.log("add cells");
-		// });
-
-
-		console.log("xml_graph_data : " + $scope.DataTransfert.xml_graph_data);
 		if($scope.DataTransfert.xml_graph_data != null){
 			graph.getModel().clear();
 			// var xml = mxUtils.load('file_graph.xml');
@@ -402,12 +393,17 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		}
 
 		graph.addListener(mxEvent.CLICK, function(sender, evt){
-			//console.log("add click");
+			$scope.keep_xml_graph_data();
+		});
+		graph.addListener(mxEvent.REFRESH, function(sender, evt){
+			$scope.keep_xml_graph_data();
+		});
+		$scope.keep_xml_graph_data = function(){
 			$scope.DataTransfert = DataTransfert;
 			var encoder = new mxCodec();
 			var node = encoder.encode(graph.getModel());
 			$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
-		});
+		};
 
 		// Gets the default parent for inserting new cells. This
 		// is normally the first child of the root (ie. layer 0).
@@ -649,7 +645,8 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				});
 			} else if(graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell)){
 				menu.addItem('Create Self Projection', null, function(){
-					graph.insertEdge(cell, null, '', cell, cell)
+					graph.insertEdge(cell, null, '', cell, cell);
+					$scope.keep_xml_graph_data();
 				});
 				menu.addItem('Edit Population', null, function(){
 					if((cell.data_cell != null) & (cell.data_cell != "")){
