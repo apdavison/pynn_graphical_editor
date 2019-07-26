@@ -140,6 +140,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				var encoder = new mxCodec();
 				var node = encoder.encode(graph.getModel());
 				var nodeText = new XMLSerializer().serializeToString(node);
+				console.log("nodeText" + nodeText);
 				var blob = new Blob([nodeText], {type: "text/plain;charset=utf-8"});
 				//in case of cancelation => filename == null
 				if(filename != null){
@@ -382,7 +383,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// 	console.log("add cells");
 		// });
 
-		
+
 		console.log("xml_graph_data : " + $scope.DataTransfert.xml_graph_data);
 		if($scope.DataTransfert.xml_graph_data != null){
 			graph.getModel().clear();
@@ -405,7 +406,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 			$scope.DataTransfert = DataTransfert;
 			var encoder = new mxCodec();
 			var node = encoder.encode(graph.getModel());
-			$scope.DataTransfert.xml_graph_data = node;
+			$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
 		});
 
 		// Gets the default parent for inserting new cells. This
