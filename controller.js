@@ -182,6 +182,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 							elt = elt.nextSibling;
 						}
 						graph.addCells(cells);
+						$scope.DataTransfert = DataTransfert;
+						var encoder = new mxCodec();
+						var node = encoder.encode(graph.getModel());
+						$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
 					};
 					r.readAsText(f);
 				} else {
