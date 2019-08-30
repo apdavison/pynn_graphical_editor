@@ -30,7 +30,8 @@ var graphSchemaApp = angular.module('graphSchemaApp',
                                     'jobService',
                                     'bbpOidcClient',
                                     'clb-identity',
-                                    'clb-collab']);
+                                    'clb-collab',
+                                    'neo-visualizer']);
 
 
 graphSchemaApp.config(function($stateProvider, $urlRouterProvider, bbpOidcSessionProvider) {
