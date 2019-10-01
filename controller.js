@@ -996,3 +996,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 graphSchemaApp.service('DataTransfert', function(){
 	this.xml_graph_data = "";
 });
+
+graphSchemaApp.controller('neoViewerController', function($scope){
+
+});
