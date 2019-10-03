@@ -666,7 +666,9 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         // }
                         if((Simulation_name != null) && (Simulation_name != "")){
                             // str_rwd += "pop_" + val.id + ".write_data(\"" + Simulation_name + "_pop_" + val.id + ".h5\")\n";
-                            str_rwd += "pop_" + val.id + ".write_data(\"" + Simulation_name + "_pop_" + val.id + ".pkl\")\n";
+                            str_rwd += "io_" + val.id + " = NixIO(\"" + Simulation_name + "_pop_" + val.id + ".nix\", \"ow\")\n";
+
+                            str_rwd += "pop_" + val.id + ".write_data(\"io_" + val.id + "\")\n";
                         }
                     }
                 } catch(error) {
