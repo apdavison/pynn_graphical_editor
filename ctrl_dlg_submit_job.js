@@ -74,7 +74,8 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 
 			try {
 				jobService.post(job_p, function(data, status){
-					console.log("success : +" + data + "/" + status );
+					//console.log("success : +" + data + "/" + status );
+					console.log("job status : " + JSON.parse(job_p).status);
 					job_status.textContent = 'successed';
 					job_status.classList.remove('badge-primary');
 					job_status.classList.remove('badge-danger');
