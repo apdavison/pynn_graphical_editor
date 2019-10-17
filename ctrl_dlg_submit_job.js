@@ -77,11 +77,16 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 				jobService.post(job_p, function(data, status){
 					//console.log("success : +" + data + "/" + status );
 					console.log("job status (successed) : " + JSON.parse(job_p).status);
-					job_status.textContent = 'successed';
+					// job_status.textContent = 'successed';
+					// job_status.classList.remove('badge-primary');
+					// job_status.classList.remove('badge-danger');
+					// job_status.classList.remove('badge-info');
+					// job_status.classList.add('badge-success');
+					job_status.textContent = 'submitted';
 					job_status.classList.remove('badge-primary');
 					job_status.classList.remove('badge-danger');
-					job_status.classList.remove('badge-info');
-					job_status.classList.add('badge-success');
+					job_status.classList.remove('badge-success');
+					job_status.classList.add('badge-info');
 		
 				})
 			} catch(error) {
