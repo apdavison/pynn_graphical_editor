@@ -398,11 +398,11 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		graph.addListener(mxEvent.CLICK, function(sender, evt){
 			$scope.keep_xml_graph_data();
-			$scope.veryfyStatusOfSubmittedJob();
+			$scope.veryfyStatusOfSubmittedJob(4293);
 		});
 		graph.addListener(mxEvent.REFRESH, function(sender, evt){
 			$scope.keep_xml_graph_data();
-			$scope.veryfyStatusOfSubmittedJob();
+			$scope.veryfyStatusOfSubmittedJob(4293);
 		});
 		$scope.keep_xml_graph_data = function(){
 			$scope.DataTransfert = DataTransfert;
@@ -412,8 +412,12 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		};
 
 		// request to verify status of submitted job
-		$scope.veryfyStatusOfSubmittedJob = function(){
-			
+		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
+			//console.log(job_p);
+			 job = jobService.get({collab_id:collab_id}, function(data, status){
+			 	console.log("data : " + data + "status : " + status);
+			 	console.log("data status : " + data.objects[0].status);
+			 });
 		};
 
 		// Gets the default parent for inserting new cells. This
