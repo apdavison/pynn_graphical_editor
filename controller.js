@@ -398,15 +398,22 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		graph.addListener(mxEvent.CLICK, function(sender, evt){
 			$scope.keep_xml_graph_data();
+			$scope.veryfyStatusOfSubmittedJob();
 		});
 		graph.addListener(mxEvent.REFRESH, function(sender, evt){
 			$scope.keep_xml_graph_data();
+			$scope.veryfyStatusOfSubmittedJob();
 		});
 		$scope.keep_xml_graph_data = function(){
 			$scope.DataTransfert = DataTransfert;
 			var encoder = new mxCodec();
 			var node = encoder.encode(graph.getModel());
 			$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
+		};
+
+		// request to verify status of submitted job
+		$scope.veryfyStatusOfSubmittedJob = function(){
+			
 		};
 
 		// Gets the default parent for inserting new cells. This
