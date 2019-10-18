@@ -415,8 +415,12 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
 			//console.log(job_p);
 			 job = jobService.get({collab_id:collab_id}, function(data, status){
+
 			 	console.log("data : " + data + "status : " + status);
-			 	console.log("data status : " + data.objects[0].status);
+			 	console.log("length : " + data.objects.length);
+			 	if (data.objects.length > 0) {
+			 		console.log("data status : " + data.objects[0].status);
+			 	}
 			 });
 		};
 
