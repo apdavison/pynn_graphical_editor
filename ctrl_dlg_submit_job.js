@@ -67,7 +67,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 			console.log(job_p);
 			console.log("job status (submitted) : " + JSON.parse(job_p).status);
 			var job_status = document.getElementById('job_status');
-			job_status.textContent = 'submitted';
+			job_status.textContent = JSON.parse(job_p).status;
 			job_status.classList.remove('badge-primary');
 			job_status.classList.remove('badge-danger');
 			job_status.classList.remove('badge-success');
@@ -82,7 +82,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 					// job_status.classList.remove('badge-danger');
 					// job_status.classList.remove('badge-info');
 					// job_status.classList.add('badge-success');
-					job_status.textContent = 'submitted';
+					job_status.textContent = JSON.parse(job_p).status;
 					job_status.classList.remove('badge-primary');
 					job_status.classList.remove('badge-danger');
 					job_status.classList.remove('badge-success');
@@ -92,7 +92,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 			} catch(error) {
 				console.log("error : " + error);
 				console.log("job status (failled) : " + JSON.parse(job_p).status);
-				job_status.textContent = 'failled';
+				job_status.textContent = JSON.parse(job_p).status;
 				job_status.classList.remove('badge-primary');
 				job_status.classList.remove('badge-success');
 				job_status.classList.remove('badge-info');
