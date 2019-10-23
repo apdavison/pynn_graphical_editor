@@ -21,7 +21,7 @@ graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
 	];
 });
 
-graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string, DataTransfert) {
+graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, jobResults, python_script_string, DataTransfert, $location) {
 
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
@@ -29,6 +29,25 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// Displays an error message if the browser is not supported.
 		mxUtils.error('Browser is not supported!', 200, false);
 	} else {
+		//get collab_id
+		$scope.collab_id = 4293;  //default value
+		var ctx = null;
+
+		if( $location.search().ctx ) {
+			ctx = $location.search().ctx;
+			console.log(ctx);
+			clbContext.get(ctx).then(
+				function(context) {
+					console.log("Collab id = " + context.collab.id);
+					$scope.collab_id = context.collab.id;
+				},
+				function(err) {
+					 console.log(err);
+				}
+			);
+		}
+		console.log("Context is " + ctx);
+
 		$scope.DataTransfert = DataTransfert;
 		
 		// Enables guides
@@ -398,11 +417,11 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		graph.addListener(mxEvent.CLICK, function(sender, evt){
 			$scope.keep_xml_graph_data();
-			$scope.veryfyStatusOfSubmittedJob(4293);
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
 		});
 		graph.addListener(mxEvent.REFRESH, function(sender, evt){
 			$scope.keep_xml_graph_data();
-			$scope.veryfyStatusOfSubmittedJob(4293);
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
 		});
 		$scope.keep_xml_graph_data = function(){
 			$scope.DataTransfert = DataTransfert;
@@ -413,13 +432,17 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		// request to verify status of submitted job
 		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
-			//console.log(job_p);
-			 job = jobService.get({collab_id:collab_id}, function(data, status){
-
+			 //console.log(job_p);
+			 job = jobResults.get({collab_id:collab_id}, function(data, status){
 			 	console.log("data : " + data + "status : " + status);
 			 	console.log("length : " + data.objects.length);
 			 	if (data.objects.length > 0) {
-			 		console.log("data status : " + data.objects[0].status);
+					 console.log("data status : " + data.objects[0].status);
+					 job_status.textContent = data.objects[0].status;
+					 job_status.classList.remove('badge-primary');
+					 job_status.classList.remove('badge-danger');
+					 job_status.classList.remove('badge-success');
+					 job_status.classList.add('badge-info');		 
 			 	}
 			 });
 		};
