@@ -6,7 +6,7 @@ jobService.factory('jobService', ['$resource',
   function($resource){
     //return $resource( base_url + '/queue', {id:'@eId'}, {
     return $resource( base_url + '/queue/:id/', { id: '@eId' }, {
-      //get: { method: 'GET', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } },
+      get: { method: 'GET', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } },
       post: { method: 'POST', params:{ format:'json' }, headers:{ 'Content-Type':'application/json' } }
     });
   }]);

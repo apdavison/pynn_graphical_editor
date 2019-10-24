@@ -418,10 +418,16 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 			graph.addCells(cells);
 		}
 
-		graph.addListener(mxEvent.CLICK, function(sender, evt){
-			$scope.keep_xml_graph_data();
+		// execute veryfyStatusOfSubmittedJob method periodically
+		window.setInterval(function(){ 
 			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
-		});
+		}, 5000); // This is time period in milliseconds 1000 ms = 1 second.
+		
+
+		// graph.addListener(mxEvent.CLICK, function(sender, evt){
+		// 	$scope.keep_xml_graph_data();
+		// 	$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
+		// });
 		graph.addListener(mxEvent.REFRESH, function(sender, evt){
 			$scope.keep_xml_graph_data();
 			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
@@ -435,38 +441,71 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		// request to verify status of submitted job
 		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
-			 job = jobResults.get({collab_id:collab_id}, function(data, status){
-			 	console.log("data : " + data + "status : " + status);
-				console.log("length : " + data.objects.length);
-				var i = 0;
-				for(i = 0; i < data.objects.length; i++){
-					if(data.objects[i].timestamp_submission == $scope.timestamp_submission){
-						$scope.submitted_job = data.objects[i];
+			console.log("veryfy Status Of Submitted Job");
+			var val_id = new Array();
+			//jobService.get
+			job = jobService.get({collab_id:collab_id}, function(data, status){
+				if(data.objects.length > 0){
+					//console.log("data : " + data + "status : " + status);
+					console.log("length : " + data.objects.length);
+					var i = 0;
+					for(i = 0; i < data.objects.length; i++){
+						val_id[i] = data.objects[i].id;
+					}
+					val_id.sort();
+					console.log("val_id : " + val_id[val_id.length-1]);
+					for(i = 0; i < data.objects.length; i++){
+						if(data.objects[i].id = val_id[val_id.length-1]){
+							$scope.submitted_job = data.objects[i];
+						}
 					}
 				}
-			 	if ($scope.submitted_job != "") {
-					 console.log("data status : " + $scope.submitted_job.status);
-					 job_status.textContent = $scope.submitted_job.status;
-					 if($scope.submitted_job.status == "finished"){
+			});
+			
+			if(job.objects != undefined){
+				if(job.objects.length == 0){
+					//JobResults.get
+					job = jobResults.get({collab_id:collab_id}, function(data, status){
+						//console.log("data : " + data + "status : " + status);
+						console.log("length : " + data.objects.length);
+						var i = 0;
+						for(i = 0; i < data.objects.length; i++){
+							val_id[i] = data.objects[i].id;
+						}
+						val_id.sort();
+						console.log("val_id : " + val_id[val_id.length-1]);
+						for(i = 0; i < data.objects.length; i++){
+							if(data.objects[i].id = val_id[val_id.length-1]){
+								$scope.submitted_job = data.objects[i];
+							}
+						}
+					});
+				}
+			}
+			if(job.objects != undefined){
+				if ($scope.submitted_job != "") {
+					console.log("data status : " + $scope.submitted_job.status);
+					job_status.textContent = $scope.submitted_job.status;
+					if($scope.submitted_job.status == "finished"){
 						job_status.classList.remove('badge-primary');
 						job_status.classList.remove('badge-danger');
 						job_status.classList.add('badge-success');
 						job_status.classList.remove('badge-info');
-					 }
-					 else if($scope.submitted_job.status == "error"){
+					}
+					else if($scope.submitted_job.status == "error"){
 						job_status.classList.remove('badge-primary');
 						job_status.classList.add('badge-danger');
 						job_status.classList.remove('badge-success');
 						job_status.classList.remove('badge-info');
-					 }
-					 else{
+					}
+					else{
 						job_status.classList.remove('badge-primary');
 						job_status.classList.remove('badge-danger');
 						job_status.classList.remove('badge-success');
 						job_status.classList.add('badge-info');
-					 }	 
-			 	}
-			 });
+					}	 
+				}
+			}
 		};
 
 		// Gets the default parent for inserting new cells. This
