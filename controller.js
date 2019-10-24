@@ -423,11 +423,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
 		}, 5000); // This is time period in milliseconds 1000 ms = 1 second.
 		
-
-		// graph.addListener(mxEvent.CLICK, function(sender, evt){
-		// 	$scope.keep_xml_graph_data();
-		// 	$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
-		// });
 		graph.addListener(mxEvent.REFRESH, function(sender, evt){
 			$scope.keep_xml_graph_data();
 			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
