@@ -32,7 +32,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		//get collab_id
 		$scope.collab_id = 4293;  //default value
 		var ctx = null;
-		$scope.submitted_job = "";
 		$scope.timestamp_submission = "";
 
 		if( $location.search().ctx ) {
@@ -437,11 +436,13 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// request to verify status of submitted job
 		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
 			console.log("veryfy Status Of Submitted Job");
+			$scope.submitted_job = "";
 			var val_id = new Array();
+			var initial_textContent = job_status.textContent;
 			//jobService.get
+
 			job = jobService.get({collab_id:collab_id}, function(data, status){
 				if(data.objects.length > 0){
-					//console.log("data : " + data + "status : " + status);
 					console.log("length : " + data.objects.length);
 					var i = 0;
 					for(i = 0; i < data.objects.length; i++){
@@ -451,55 +452,68 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					console.log("val_id : " + val_id[val_id.length-1]);
 					for(i = 0; i < data.objects.length; i++){
 						if(data.objects[i].id = val_id[val_id.length-1]){
-							$scope.submitted_job = data.objects[i];
+							//$scope.submitted_job = data.objects[i];
+							job_status.textContent = data.objects[i].status;
 						}
 					}
+				} else {
+					job_status.textContent_2 = "not defined status";
 				}
 			});
 			
-			if(job.objects != undefined){
-				if(job.objects.length == 0){
-					//JobResults.get
-					job = jobResults.get({collab_id:collab_id}, function(data, status){
-						//console.log("data : " + data + "status : " + status);
-						console.log("length : " + data.objects.length);
-						var i = 0;
-						for(i = 0; i < data.objects.length; i++){
-							val_id[i] = data.objects[i].id;
+			// if(job.objects == undefined){
+			// 	if(job.objects.length == 0){
+			if (job_status.textContent_2 == "not defined status") {
+				//JobResults.get
+				job = jobResults.get({collab_id:collab_id}, function(data, status){
+					console.log("length : " + data.objects.length);
+					var i = 0;
+					for(i = 0; i < data.objects.length; i++){
+						val_id[i] = data.objects[i].id;
+					}
+					val_id.sort();
+					console.log("val_id : " + val_id[val_id.length-1]);
+					for(i = 0; i < data.objects.length; i++){
+						if(data.objects[i].id = val_id[val_id.length-1]){
+							//$scope.submitted_job = data.objects[i];
+							job_status.textContent = data.objects[i].status;
 						}
-						val_id.sort();
-						console.log("val_id : " + val_id[val_id.length-1]);
-						for(i = 0; i < data.objects.length; i++){
-							if(data.objects[i].id = val_id[val_id.length-1]){
-								$scope.submitted_job = data.objects[i];
-							}
-						}
-					});
-				}
+					}
+				});
 			}
-			if(job.objects != undefined){
-				if ($scope.submitted_job != "") {
-					console.log("data status : " + $scope.submitted_job.status);
-					job_status.textContent = $scope.submitted_job.status;
-					if($scope.submitted_job.status == "finished"){
-						job_status.classList.remove('badge-primary');
-						job_status.classList.remove('badge-danger');
-						job_status.classList.add('badge-success');
-						job_status.classList.remove('badge-info');
-					}
-					else if($scope.submitted_job.status == "error"){
-						job_status.classList.remove('badge-primary');
-						job_status.classList.add('badge-danger');
-						job_status.classList.remove('badge-success');
-						job_status.classList.remove('badge-info');
-					}
-					else{
-						job_status.classList.remove('badge-primary');
-						job_status.classList.remove('badge-danger');
-						job_status.classList.remove('badge-success');
-						job_status.classList.add('badge-info');
-					}	 
+			// 	}
+			// }
+			if ($scope.submitted_job != "") {
+				console.log("data status : " + $scope.submitted_job.status);
+				job_status.textContent = $scope.submitted_job.status;
+				if($scope.submitted_job.status == "finished"){
+					job_status.classList.remove('badge-primary');
+					job_status.classList.remove('badge-danger');
+					job_status.classList.add('badge-success');
+					job_status.classList.remove('badge-info');
+					job_status.classList.remove('badge-warning');
 				}
+				else if($scope.submitted_job.status == "running"){
+					job_status.classList.remove('badge-primary');
+					job_status.classList.remove('badge-danger');
+					job_status.classList.remove('badge-success');
+					job_status.classList.remove('badge-info');
+					job_status.classList.add('badge-warning');
+				}
+				else if($scope.submitted_job.status == "error"){
+					job_status.classList.remove('badge-primary');
+					job_status.classList.add('badge-danger');
+					job_status.classList.remove('badge-success');
+					job_status.classList.remove('badge-info');
+					job_status.classList.remove('badge-warning');
+				}
+				else{
+					job_status.classList.remove('badge-primary');
+					job_status.classList.remove('badge-danger');
+					job_status.classList.remove('badge-success');
+					job_status.classList.add('badge-info');
+					job_status.classList.remove('badge-warning');
+				}	 
 			}
 		};
 
