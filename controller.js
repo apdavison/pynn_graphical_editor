@@ -335,7 +335,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		job_status.id = 'job_status';
 		job_status.classList.add("badge");
 		job_status.classList.add("badge-primary");
-		job_status.textContent = "Not submited yet";
+		job_status.textContent = "No submission data";
 
 		//create toolbar
 		var div_toolbar = document.createElement('div');
