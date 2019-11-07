@@ -521,39 +521,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					});
 				}
 			});
-
-			// if ($scope.submitted_job != "") {
-			// 	console.log("data status : " + $scope.submitted_job.status);
-			// 	job_status.textContent = $scope.submitted_job.status;
-			// 	if($scope.submitted_job.status == "finished"){
-			// 		job_status.classList.remove('badge-primary');
-			// 		job_status.classList.remove('badge-danger');
-			// 		job_status.classList.add('badge-success');
-			// 		job_status.classList.remove('badge-info');
-			// 		job_status.classList.remove('badge-warning');
-			// 	}
-			// 	else if($scope.submitted_job.status == "running"){
-			// 		job_status.classList.remove('badge-primary');
-			// 		job_status.classList.remove('badge-danger');
-			// 		job_status.classList.remove('badge-success');
-			// 		job_status.classList.remove('badge-info');
-			// 		job_status.classList.add('badge-warning');
-			// 	}
-			// 	else if($scope.submitted_job.status == "error"){
-			// 		job_status.classList.remove('badge-primary');
-			// 		job_status.classList.add('badge-danger');
-			// 		job_status.classList.remove('badge-success');
-			// 		job_status.classList.remove('badge-info');
-			// 		job_status.classList.remove('badge-warning');
-			// 	}
-			// 	else{
-			// 		job_status.classList.remove('badge-primary');
-			// 		job_status.classList.remove('badge-danger');
-			// 		job_status.classList.remove('badge-success');
-			// 		job_status.classList.add('badge-info');
-			// 		job_status.classList.remove('badge-warning');
-			// 	}	 
-			// }
 		};
 
 		// Gets the default parent for inserting new cells. This
