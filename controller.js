@@ -1111,6 +1111,9 @@ graphSchemaApp.service('DataTransfert', function(){
 	this.xml_graph_data = "";
 });
 
-graphSchemaApp.controller('neoViewerController', function($scope){
-
+graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
+	$scope.collab_id = 4293;  //default value
+	job = jobResults.get({collab_id:collab_id}, function(data, status){
+		console.log("data : " + data);
+	});
 });
