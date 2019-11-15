@@ -19,3 +19,10 @@ jobResults.factory('jobResults', ['$resource',
       get: {method: 'GET', params:{ format:'json' }, isArray: false },
     });
   }]);
+
+// jobById.factory('jobById', ['$resource',
+//   function($resource){
+//     return $resource( base_url + '/results/:id/', { id:'@eId'}, {
+//       get: {method: 'GET', params:{ format:'json' }, isArray: false },
+//   }
+// ]);

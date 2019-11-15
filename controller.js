@@ -1113,7 +1113,17 @@ graphSchemaApp.service('DataTransfert', function(){
 
 graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
 	$scope.collab_id = 4293;  //default value
-	job = jobResults.get({collab_id:collab_id}, function(data, status){
-		console.log("data : " + data);
+	// job = jobResults.get({collab_id:$scope.collab_id}, function(data, status){
+	// 	//console.log("data : " + data);
+	// 	console.log("data id : " + data.objects[0].id);
+	// });
+	job = jobResults.get({id:123759}, function(data, status){
+		console.log("data : " + data.output_data);
+		var i = 0;
+		for(i = 0; i < data.output_data.length; i++){
+			$scope.neo_url[i] = data.output_data.resource_uri;
+		}
+		
+		//console.log("job id : " + data.objects[0].id);
 	});
 });
