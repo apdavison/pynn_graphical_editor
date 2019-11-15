@@ -2,10 +2,11 @@
     <h1>Visualizer test</h1>
     <p>This page demonstrates <span class="text-danger">Neo visualizer service</span>.</p>
 </div>
-<div class="container" ng-repeat="">{{neo_url}}
+{{neo_url}}
+<div class="container" ng-repeat="url in neo_url">
     <div class="row" ng-app="neo-visualizer">
         <visualizer-view
-            source="{{neo_url}}"
+            source="{{url}}"
             height=300>
         </visualizer-view>
     </div>

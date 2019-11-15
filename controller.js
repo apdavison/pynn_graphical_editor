@@ -1117,13 +1117,14 @@ graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
 	// 	//console.log("data : " + data);
 	// 	console.log("data id : " + data.objects[0].id);
 	// });
+	$scope.neo_url = [];
 	job = jobResults.get({id:123759}, function(data, status){
 		console.log("data : " + data.output_data);
 		var i = 0;
 		for(i = 0; i < data.output_data.length; i++){
-			$scope.neo_url[i] = data.output_data.resource_uri;
+			$scope.neo_url[i] = data.output_data[i].url;
 		}
-		
 		//console.log("job id : " + data.objects[0].id);
+		console.log("neo_url : " + $scope.neo_url);
 	});
 });
