@@ -1119,7 +1119,7 @@ graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
 
 		var data_id = data.objects[0].id;
 		$scope.neo_url = [];
-		job = jobResults.get({id:123291}, function(data, status){
+		job = jobResults.get({id:data_id}, function(data, status){
 			console.log("data : " + data.output_data);
 			var i = 0;
 			for(i = 0; i < data.output_data.length; i++){
