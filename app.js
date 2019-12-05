@@ -28,9 +28,11 @@ var graphSchemaApp = angular.module('graphSchemaApp',
                                     'ui.bootstrap',
                                     'angularModalService',
                                     'jobService',
+                                    'jobResults',
                                     'bbpOidcClient',
                                     'clb-identity',
-                                    'clb-collab']);
+                                    'clb-collab',
+                                    'neo-visualizer']);
 
 
 graphSchemaApp.config(function($stateProvider, $urlRouterProvider, bbpOidcSessionProvider) {
@@ -72,6 +74,11 @@ graphSchemaApp.config(function($stateProvider, $urlRouterProvider, bbpOidcSessio
                 }
             }
 
+        })
+        .state('neo_viewer', {
+            url: '/neo_viewer',
+            templateUrl: 'neo_viewer.html',
+            controller: 'neoViewerController'
         });
 
     // set to true if missing token should automatically redirect to login page.

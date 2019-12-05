@@ -1,7 +1,9 @@
 var graphSchemaApp = angular.module('graphSchemaApp');
 
-graphSchemaApp.controller('scotchController', function($scope) {
+graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
     $scope.message = 'test';
+
+	$scope.DataTransfert = DataTransfert;
 
     $scope.scotches = [
         {
@@ -16,16 +18,39 @@ graphSchemaApp.controller('scotchController', function($scope) {
             name: 'Glenfiddich 1937',
             price: 20000
         }
-    ];
+	];
 });
 
-graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string) {
+graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, jobResults, python_script_string, DataTransfert, $location) {
+
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
 	{
 		// Displays an error message if the browser is not supported.
 		mxUtils.error('Browser is not supported!', 200, false);
 	} else {
+		//get collab_id
+		$scope.collab_id = 4293;  //default value
+		var ctx = null;
+		$scope.timestamp_submission = "";
+
+		if( $location.search().ctx ) {
+			ctx = $location.search().ctx;
+			console.log(ctx);
+			clbContext.get(ctx).then(
+				function(context) {
+					console.log("Collab id = " + context.collab.id);
+					$scope.collab_id = context.collab.id;
+				},
+				function(err) {
+					 console.log(err);
+				}
+			);
+		}
+		console.log("Context is " + ctx);
+
+		$scope.DataTransfert = DataTransfert;
+		
 		// Enables guides
 		mxGraphHandler.prototype.guidesEnabled = true;
 
@@ -90,7 +115,6 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		sp_tool_img = document.createElement('span');
 		sp_tool_img.textContent = "drag and drop to create Population";
 		sp_tool_img.className='tooltiptext2';
-
 
 		// var img2 = mxUtils.createImage('img/gearRed.png');
 		// img2.style.width = '48px';
@@ -178,6 +202,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 							elt = elt.nextSibling;
 						}
 						graph.addCells(cells);
+						$scope.DataTransfert = DataTransfert;
+						var encoder = new mxCodec();
+						var node = encoder.encode(graph.getModel());
+						$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
 					};
 					r.readAsText(f);
 				} else {
@@ -205,7 +233,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 						// clear content of graph
 						graph.getModel().clear();
 						// update status
-						job_status.textContent = 'Not submited yet';
+						job_status.textContent = 'No job submited yet';
 						job_status.classList.remove('badge-danger');
 						job_status.classList.remove('badge-success');
 						job_status.classList.remove('badge-info');
@@ -288,6 +316,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					console.log(cells);
 					scriptText = python_script_string(cells, result.hardware_platform, result.Simulation_time, result.Simulation_name);
 					console.log((scriptText));
+					$scope.timestamp_submission = result.timestamp_submission;
 				});
 			});
 		});
@@ -306,7 +335,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		job_status.id = 'job_status';
 		job_status.classList.add("badge");
 		job_status.classList.add("badge-primary");
-		job_status.textContent = "Not submited yet";
+		job_status.textContent = "No submission data";
 
 		//create toolbar
 		var div_toolbar = document.createElement('div');
@@ -370,6 +399,129 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 
 		// Enables rubberband selection
 		new mxRubberband(graph);
+
+		//keep graph when we change controller
+		if($scope.DataTransfert.xml_graph_data != null){
+			graph.getModel().clear();
+			// var xml = mxUtils.load('file_graph.xml');
+			// var xml = e.target.result;
+			var doc = mxUtils.parseXml($scope.DataTransfert.xml_graph_data);
+			var codec = new mxCodec(doc);
+			var elt = doc.documentElement.firstChild.firstChild;
+			var cells = [];
+			while (elt != null){
+				cells.push(codec.decodeCell(elt));
+				graph.refresh();
+				elt = elt.nextSibling;
+			}
+			graph.addCells(cells);
+		}
+
+		// execute veryfyStatusOfSubmittedJob method periodically
+		window.setInterval(function(){ 
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
+		}, 5000); // This is time period in milliseconds 1000 ms = 1 second.
+		
+		graph.addListener(mxEvent.REFRESH, function(sender, evt){
+			$scope.keep_xml_graph_data();
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
+		});
+		$scope.keep_xml_graph_data = function(){
+			$scope.DataTransfert = DataTransfert;
+			var encoder = new mxCodec();
+			var node = encoder.encode(graph.getModel());
+			$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
+		};
+
+		// request to verify status of submitted job
+		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
+			console.log("veryfy Status Of Submitted Job");
+			$scope.submitted_job = "";
+			var val_id = new Array();
+			var initial_textContent = job_status.textContent;
+			//jobService.get
+
+			job = jobService.get({collab_id:collab_id}, function(data, status){
+				if(data.objects.length > 0){
+					console.log("length : " + data.objects.length);
+					var i = 0;
+					for(i = 0; i < data.objects.length; i++){
+						val_id[i] = data.objects[i].id;
+					}
+					val_id.sort();
+					console.log("val_id : " + val_id[val_id.length-1]);
+					for(i = 0; i < data.objects.length; i++){
+						if(data.objects[i].id = val_id[val_id.length-1]){
+							//$scope.submitted_job = data.objects[i];
+							job_status.textContent = data.objects[i].status;
+							if(job_status.textContent == "finished"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.add('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else if(job_status.textContent == "running"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.add('badge-warning');
+							}
+							else if(job_status.textContent == "error"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.add('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else{
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.add('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+						}
+					}
+				} else {
+					//job_status.textContent = "not defined status";
+					job = jobResults.get({collab_id:collab_id}, function(data, status){
+						if(data.objects.length > 0){
+							job_status.textContent = data.objects[0].status;
+							if(job_status.textContent == "finished"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.add('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else if(job_status.textContent == "running"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.add('badge-warning');
+							}
+							else if(job_status.textContent == "error"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.add('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else{
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.add('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+						}
+					});
+				}
+			});
+		};
 
 		// Gets the default parent for inserting new cells. This
 		// is normally the first child of the root (ie. layer 0).
@@ -611,7 +763,8 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				});
 			} else if(graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell)){
 				menu.addItem('Create Self Projection', null, function(){
-					graph.insertEdge(cell, null, '', cell, cell)
+					graph.insertEdge(cell, null, '', cell, cell);
+					$scope.keep_xml_graph_data();
 				});
 				menu.addItem('Edit Population', null, function(){
 					if((cell.data_cell != null) & (cell.data_cell != "")){
@@ -954,3 +1107,26 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 });
 
 
+graphSchemaApp.service('DataTransfert', function(){
+	this.xml_graph_data = "";
+});
+
+graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
+	$scope.collab_id = 4293;  //default value
+	job = jobResults.get({collab_id:$scope.collab_id}, function(data, status){
+		//console.log("data : " + data);
+		console.log("data id : " + data.objects[0].id);
+
+		var data_id = data.objects[0].id;
+		$scope.neo_url = [];
+		job = jobResults.get({id:data_id}, function(data, status){
+			console.log("data : " + data.output_data);
+			var i = 0;
+			for(i = 0; i < data.output_data.length; i++){
+				$scope.neo_url[i] = data.output_data[i].url;
+			}
+			//console.log("job id : " + data.objects[0].id);
+			console.log("neo_url : " + $scope.neo_url);
+		});
+	});
+});

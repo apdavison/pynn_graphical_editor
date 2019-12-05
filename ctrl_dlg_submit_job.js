@@ -61,12 +61,9 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 		console.log("Context is " + ctx);
 
 		$scope.submitJob = function(job, jobService){
-			job_p = JSON.stringify(job);
-			console.log("Submitting job:");
-			console.log(job);
-			console.log(job_p);
+			var job_p = JSON.stringify(job);
 			var job_status = document.getElementById('job_status');
-			job_status.textContent = 'submitted';
+			job_status.textContent = JSON.parse(job_p).status;
 			job_status.classList.remove('badge-primary');
 			job_status.classList.remove('badge-danger');
 			job_status.classList.remove('badge-success');
@@ -74,22 +71,20 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 
 			try {
 				jobService.post(job_p, function(data, status){
-					console.log("success : +" + data + "/" + status );
-					job_status.textContent = 'successed';
+					job_status.textContent = JSON.parse(job_p).status;
 					job_status.classList.remove('badge-primary');
 					job_status.classList.remove('badge-danger');
-					job_status.classList.remove('badge-info');
-					job_status.classList.add('badge-success');
-		
+					job_status.classList.remove('badge-success');
+					job_status.classList.add('badge-info');
 				})
 			} catch(error) {
-				console.log("error : " + error);
-				job_status.textContent = 'failled';
+				// console.log("error : " + error);
+				// console.log("job status (failled) : " + JSON.parse(job_p).status);
+				job_status.textContent = JSON.parse(job_p).status;
 				job_status.classList.remove('badge-primary');
 				job_status.classList.remove('badge-success');
 				job_status.classList.remove('badge-info');
 				job_status.classList.add('badge-danger');
-
 			}
 			// .error(function(data, status){
 			//  	console.log("failled : +" + data + "/" + status );
@@ -114,6 +109,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 				hardware_platform: $scope.hardware_platform,
 				Simulation_time: $scope.Simulation_time,
 				Simulation_name: $scope.Simulation_name,
+				timestamp_submission: $scope.job.timestamp_submission,
 			}, 100);
 			$scope.submitJob($scope.job, jobService);
 			$('.modal-backdrop').remove();
@@ -123,6 +119,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 				hardware_platform: $scope.hardware_platform,
 				Simulation_time: $scope.Simulation_time,
 				Simulation_name: $scope.Simulation_name,
+				timestamp_submission: $scope.job.timestamp_submission,
 			}, 100);
 			$('.modal-backdrop').remove();
 		};
