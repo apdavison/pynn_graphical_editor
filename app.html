@@ -10,11 +10,13 @@
 <head>
 	<title>Hello, World! example for mxGraph</title>
   <!-- CSS (load bootstrap) -->
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/app-graph.css">
-  <style>
+	<meta charset="UTF-8">
+  	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/app-graph.css">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+	<style>
       .navbar { border-radius:0; }
-  </style>
+	</style>
 
 	<!-- Sets the basepath for the library if not in same directory -->
 	<script type="text/javascript">
@@ -24,6 +26,7 @@
 	<!-- Loads and initializes the library -->
 	<script type="text/javascript" src="javascript/src/js/mxClient.js"></script>
 	<script type="text/javascript" src="javascript/jquery-3.3.1.min.js"></script>
+	<!-- <script type="text/javascript" src="javascript/popper.js"></script> -->
 	<script type="text/javascript" src="javascript/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="javascript/angular.js"></script>
 	<script type="text/javascript" src="javascript/angular-ui-router.js"></script>
@@ -50,7 +53,18 @@
 	<script type="text/javascript" src="app.js"></script>
 	<script type="text/javascript" src="model.js"></script>
 	<script type="text/javascript" src="controller.js"></script>
+	<script type="text/javascript" src="ctrl_dlg_script_python.js"></script>
+	<script type="text/javascript" src="ctrl_dlg_submit_job.js"></script>
+	<script type="text/javascript" src="ctrl_pop_dlg.js"></script>
+	<script type="text/javascript" src="ctrl_pop_dlg_spike.js"></script>
 	<script type="text/javascript" src="script_generator.js"></script>
+
+	<!-- neo viewer files -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.6/nv.d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-nvd3/1.0.9/angular-nvd3.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/NeuralEnsemble/neo-viewer@master/js/src/visualizer.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/NeuralEnsemble/neo-viewer@master/js/src/services.js"></script>
 </head>
 <!-- Page passes the container for the graph to the program -->
 <!-- <body onload="main();">
@@ -63,7 +77,8 @@
 	    </div>
 	    <ul class="nav navbar-nav">
 	        <li><a ui-sref="home">Home</a></li>
-	        <li><a ui-sref="about">About</a></li>
+			<li><a ui-sref="about">About</a></li>
+			<li><a ui-sref="neo_viewer">Neo Viewer</a></li>
 	    </ul>
 	</nav>
 	<div class="container" id="container">

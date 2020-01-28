@@ -1,0 +1,12 @@
+<div class="text-center">
+    <h1>NEO Visualizer</h1>
+</div>
+{{neo_url}}
+<div class="container" ng-repeat="url in neo_url">
+    <div class="row" ng-app="neo-visualizer">
+        <visualizer-view
+            source="{{url}}"
+            height=300>
+        </visualizer-view>
+    </div>
+</div>

@@ -1,7 +1,9 @@
 var graphSchemaApp = angular.module('graphSchemaApp');
 
-graphSchemaApp.controller('scotchController', function($scope) {
+graphSchemaApp.controller('scotchController', function($scope, DataTransfert) {
     $scope.message = 'test';
+
+	$scope.DataTransfert = DataTransfert;
 
     $scope.scotches = [
         {
@@ -16,16 +18,39 @@ graphSchemaApp.controller('scotchController', function($scope) {
             name: 'Glenfiddich 1937',
             price: 20000
         }
-    ];
+	];
 });
 
-graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, python_script_string) {
+graphSchemaApp.controller('graphController', function($scope, $rootScope, $state, FileSaver, $sce, ModalService, jobService, jobResults, python_script_string, DataTransfert, $location) {
+
 	// $state.reload();
 	if (!mxClient.isBrowserSupported())
 	{
 		// Displays an error message if the browser is not supported.
 		mxUtils.error('Browser is not supported!', 200, false);
 	} else {
+		//get collab_id
+		$scope.collab_id = 4293;  //default value
+		var ctx = null;
+		$scope.timestamp_submission = "";
+
+		if( $location.search().ctx ) {
+			ctx = $location.search().ctx;
+			console.log(ctx);
+			clbContext.get(ctx).then(
+				function(context) {
+					console.log("Collab id = " + context.collab.id);
+					$scope.collab_id = context.collab.id;
+				},
+				function(err) {
+					 console.log(err);
+				}
+			);
+		}
+		console.log("Context is " + ctx);
+
+		$scope.DataTransfert = DataTransfert;
+		
 		// Enables guides
 		mxGraphHandler.prototype.guidesEnabled = true;
 
@@ -41,6 +66,44 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// Enables snapping waypoints to terminals
 		mxEdgeHandler.prototype.snapToTerminals = true;
 
+		// Overridden to define per-shape connection points
+		mxGraph.prototype.getAllConnectionConstraints = function(terminal, source)
+		{
+			if (terminal != null && terminal.shape != null)
+			{
+				if (terminal.shape.stencil != null)
+				{
+					if (terminal.shape.stencil != null)
+					{
+						return terminal.shape.stencil.constraints;
+					}
+				}
+				else if (terminal.shape.constraints != null)
+				{
+					return terminal.shape.constraints;
+				}
+			}
+	
+			return null;
+		};
+	
+		// Defines the default constraints for all shapes
+		mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+										 new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+										 new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+										new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+										new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+										new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+										new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+										new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+										new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+										new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+										new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+										new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
+		
+		// Edges have no connection points
+		mxPolyline.prototype.constraints = null;
+		
 		var graphs = [];
 		// Detect existings elements in the DOM
 		// Creates a DOM node that acts as the drag source
@@ -48,6 +111,11 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		img.class = 'img_utils';
 		img.style.width = '48px';
 		img.style.height = '48px';
+		img.className = "tooltip2";
+		sp_tool_img = document.createElement('span');
+		sp_tool_img.textContent = "drag and drop to create Population";
+		sp_tool_img.className='tooltiptext2';
+
 		// var img2 = mxUtils.createImage('img/gearRed.png');
 		// img2.style.width = '48px';
 		// img2.style.height = '48px';
@@ -66,6 +134,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_zoom_in.style.border = 'none';
 		button_zoom_in.style.background = 'url(\'img/zoom-in.png\') no-repeat';
 		button_zoom_in.style.backgroundSize = '100%';
+		button_zoom_in.className = "tooltip2";
+		sp_tool_zoom_in = document.createElement('span');
+		sp_tool_zoom_in.textContent = "Zoom In";
+		sp_tool_zoom_in.className='tooltiptext2';
 
 		var button_zoom_out = mxUtils.button('', function()
 		{
@@ -76,6 +148,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_zoom_out.style.border = 'none';
 		button_zoom_out.style.background = 'url(\'img/zoom-out.png\') no-repeat';
 		button_zoom_out.style.backgroundSize = '100%';
+		button_zoom_out.className = "tooltip2";
+		sp_tool_zoom_out = document.createElement('span');
+		sp_tool_zoom_out.textContent = "Zoom Out";
+		sp_tool_zoom_out.className='tooltiptext2';
 
 		var button_save = mxUtils.button('', function(){
 			// var FileSaver = require('file-saver');
@@ -99,6 +175,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_save.style.border = 'none';
 		button_save.style.background = 'url(\'img/save.png\') no-repeat';
 		button_save.style.backgroundSize = '100%';
+		button_save.className = "tooltip2";
+		sp_tool_button_save = document.createElement('span');
+		sp_tool_button_save.textContent = "Save graph in xml file";
+		sp_tool_button_save.className='tooltiptext2';
 
 		//create button to open and load file
 		var button_load = mxUtils.button('', function(){
@@ -122,6 +202,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 							elt = elt.nextSibling;
 						}
 						graph.addCells(cells);
+						$scope.DataTransfert = DataTransfert;
+						var encoder = new mxCodec();
+						var node = encoder.encode(graph.getModel());
+						$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
 					};
 					r.readAsText(f);
 				} else {
@@ -134,6 +218,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_load.style.border = 'none';
 		button_load.style.background = 'url(\'img/open.png\') no-repeat';
 		button_load.style.backgroundSize = '100%';
+		button_load.className = "tooltip2";
+		sp_tool_button_load = document.createElement('span');
+		sp_tool_button_load.textContent = "Open xml graph file";
+		sp_tool_button_load.className='tooltiptext2';
 
 		//create a button to clear schema
 		var button_clear = mxUtils.button('', function(){
@@ -142,7 +230,14 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				message: "Are you sure to clear the graph ?",
 				callback: function(result){ /* result is a boolean; true = OK, false = Cancel*/
 					if(result == true){
+						// clear content of graph
 						graph.getModel().clear();
+						// update status
+						job_status.textContent = 'No job submited yet';
+						job_status.classList.remove('badge-danger');
+						job_status.classList.remove('badge-success');
+						job_status.classList.remove('badge-info');
+						job_status.classList.add('badge-primary');
 					}
 				}
 			});
@@ -152,6 +247,11 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_clear.style.border = 'none';
 		button_clear.style.background = 'url(\'img/delete_clear.png\') no-repeat';
 		button_clear.style.backgroundSize = '100%';
+		button_clear.className = "tooltip2";
+		sp_tool_button_clear = document.createElement('span');
+		sp_tool_button_clear.textContent = "Clear graph";
+		sp_tool_button_clear.className='tooltiptext2';
+
 
 		// create a button to export to python script
 		var button_exp_python = mxUtils.button('', function(){
@@ -189,6 +289,10 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_exp_python.style.border = 'none';
 		button_exp_python.style.background = 'url(\'img/python.png\') no-repeat';
 		button_exp_python.style.backgroundSize = '100%';
+		button_exp_python.className = "tooltip2";
+		sp_tool_button_exp_python = document.createElement('span');
+		sp_tool_button_exp_python.textContent = "Export to Python";
+		sp_tool_button_exp_python.className='tooltiptext2';
 
 		//create a button to submit job
 		var button_submit = mxUtils.button('', function() {
@@ -212,6 +316,7 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					console.log(cells);
 					scriptText = python_script_string(cells, result.hardware_platform, result.Simulation_time, result.Simulation_name);
 					console.log((scriptText));
+					$scope.timestamp_submission = result.timestamp_submission;
 				});
 			});
 		});
@@ -220,6 +325,17 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		button_submit.style.border = 'none';
 		button_submit.style.background = 'url(\'img/submit.png\') no-repeat';
 		button_submit.style.backgroundSize = '100%';
+		button_submit.className = "tooltip2";
+		sp_tool_button_submit = document.createElement('span');
+		sp_tool_button_submit.textContent = "Submit job";
+		sp_tool_button_submit.className='tooltiptext2';
+
+		//create element to display job status after submission
+		var job_status = document.createElement('div');
+		job_status.id = 'job_status';
+		job_status.classList.add("badge");
+		job_status.classList.add("badge-primary");
+		job_status.textContent = "No submission data";
 
 		//create toolbar
 		var div_toolbar = document.createElement('div');
@@ -229,16 +345,25 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// document.body.appendChild(div_toolbar);
 		document.getElementById("id_graph_editor").appendChild(div_toolbar);
 		div_toolbar.appendChild(img);
+		img.appendChild(sp_tool_img);
 		div_toolbar.appendChild(sp_tb);//blanck space between 2 button in toolbar
 		// div_toolbar.appendChild(img2);
 		// div_toolbar.appendChild(img3);
 		div_toolbar.appendChild(button_zoom_in);
+		button_zoom_in.appendChild(sp_tool_zoom_in);
 		div_toolbar.appendChild(button_zoom_out);
+		button_zoom_out.appendChild(sp_tool_zoom_out);
 		div_toolbar.appendChild(button_save);
+		button_save.appendChild(sp_tool_button_save);
 		div_toolbar.appendChild(button_load);
+		button_load.appendChild(sp_tool_button_load);
 		div_toolbar.appendChild(button_clear);
+		button_clear.appendChild(sp_tool_button_clear);
 		div_toolbar.appendChild(button_exp_python);
+		button_exp_python.appendChild(sp_tool_button_exp_python);
 		div_toolbar.appendChild(button_submit);
+		button_submit.appendChild(sp_tool_button_submit);
+		div_toolbar.appendChild(job_status);
 
 		var container = document.createElement('div');
 		container.id = 'svg_container';
@@ -275,6 +400,129 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// Enables rubberband selection
 		new mxRubberband(graph);
 
+		//keep graph when we change controller
+		if($scope.DataTransfert.xml_graph_data != null){
+			graph.getModel().clear();
+			// var xml = mxUtils.load('file_graph.xml');
+			// var xml = e.target.result;
+			var doc = mxUtils.parseXml($scope.DataTransfert.xml_graph_data);
+			var codec = new mxCodec(doc);
+			var elt = doc.documentElement.firstChild.firstChild;
+			var cells = [];
+			while (elt != null){
+				cells.push(codec.decodeCell(elt));
+				graph.refresh();
+				elt = elt.nextSibling;
+			}
+			graph.addCells(cells);
+		}
+
+		// execute veryfyStatusOfSubmittedJob method periodically
+		window.setInterval(function(){ 
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
+		}, 5000); // This is time period in milliseconds 1000 ms = 1 second.
+		
+		graph.addListener(mxEvent.REFRESH, function(sender, evt){
+			$scope.keep_xml_graph_data();
+			$scope.veryfyStatusOfSubmittedJob($scope.collab_id);
+		});
+		$scope.keep_xml_graph_data = function(){
+			$scope.DataTransfert = DataTransfert;
+			var encoder = new mxCodec();
+			var node = encoder.encode(graph.getModel());
+			$scope.DataTransfert.xml_graph_data = new XMLSerializer().serializeToString(node);
+		};
+
+		// request to verify status of submitted job
+		$scope.veryfyStatusOfSubmittedJob = function(collab_id){
+			console.log("veryfy Status Of Submitted Job");
+			$scope.submitted_job = "";
+			var val_id = new Array();
+			var initial_textContent = job_status.textContent;
+			//jobService.get
+
+			job = jobService.get({collab_id:collab_id}, function(data, status){
+				if(data.objects.length > 0){
+					console.log("length : " + data.objects.length);
+					var i = 0;
+					for(i = 0; i < data.objects.length; i++){
+						val_id[i] = data.objects[i].id;
+					}
+					val_id.sort();
+					console.log("val_id : " + val_id[val_id.length-1]);
+					for(i = 0; i < data.objects.length; i++){
+						if(data.objects[i].id = val_id[val_id.length-1]){
+							//$scope.submitted_job = data.objects[i];
+							job_status.textContent = data.objects[i].status;
+							if(job_status.textContent == "finished"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.add('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else if(job_status.textContent == "running"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.add('badge-warning');
+							}
+							else if(job_status.textContent == "error"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.add('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else{
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.add('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+						}
+					}
+				} else {
+					//job_status.textContent = "not defined status";
+					job = jobResults.get({collab_id:collab_id}, function(data, status){
+						if(data.objects.length > 0){
+							job_status.textContent = data.objects[0].status;
+							if(job_status.textContent == "finished"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.add('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else if(job_status.textContent == "running"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.add('badge-warning');
+							}
+							else if(job_status.textContent == "error"){
+								job_status.classList.remove('badge-primary');
+								job_status.classList.add('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.remove('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+							else{
+								job_status.classList.remove('badge-primary');
+								job_status.classList.remove('badge-danger');
+								job_status.classList.remove('badge-success');
+								job_status.classList.add('badge-info');
+								job_status.classList.remove('badge-warning');
+							}
+						}
+					});
+				}
+			});
+		};
+
 		// Gets the default parent for inserting new cells. This
 		// is normally the first child of the root (ie. layer 0).
 		var parent = graph.getDefaultParent();
@@ -282,6 +530,9 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 		// Adds cells to the model in a single step
 		graph.getModel().beginUpdate();
 		graph.getModel().endUpdate();
+
+		graph.setAllowDanglingEdges(false);
+
 		graphs.push(graph);
 
 		// Returns the graph under the mouse
@@ -385,11 +636,36 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 								"synapse_type": "",
 								"receptor_type": "",
 								"connectors_type": "",
+								"param_synaptic_weight_dist": "",
 								"synaptic_weight": "",
+								"param_synaptic_weight_distribution": "",
+								"param_synaptic_weight_p1": "",
+								"param_synaptic_weight_p2": "",
+								"param_synaptic_weight_fx": "",
+								//"param_synaptic_weight_dist": "",
 								"synaptic_delay": "",
+								"param_synaptic_delay_distribution": "",
+								"param_synaptic_delay_p1": "",
+								"param_synaptic_delay_p2": "",
+								"param_synaptic_delay_fx": "",
+								"TsodyksMarkram_U_dist": "",
 								"TsodyksMarkram_U": "",
+								"TsodyksMarkram_U_distribution": "",
+								"TsodyksMarkram_U_p1": "",
+								"TsodyksMarkram_U_p2": "",
+								"TsodyksMarkram_U_fx": "",
+								"TsodyksMarkram_tau_rec_dist": "",
 								"TsodyksMarkram_tau_rec": "",
+								"TsodyksMarkram_tau_rec_distribution": "",
+								"TsodyksMarkram_tau_rec_p1": "",
+								"TsodyksMarkram_tau_rec_p2": "",
+								"TsodyksMarkram_tau_rec_fx": "",
+								"TsodyksMarkram_tau_facil_dist": "",
 								"TsodyksMarkram_tau_facil": "",
+								"TsodyksMarkram_tau_facil_distribution": "",
+								"TsodyksMarkram_tau_facil_p1": "",
+								"TsodyksMarkram_tau_facil_p2": "",
+								"TsodyksMarkram_tau_facil_fx": "",
 								"AllToAll_allow_self_connections": false,
 								"FixedProbability_p_connect": "",
 								"FixedProbability_allow_self_connections": false,
@@ -420,11 +696,36 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 								synapse_type: json_data.synapse_type,
 								receptor_type: json_data.receptor_type,
 								connectors_type: json_data.connectors_type,
+								param_synaptic_weight_dist:json_data.param_synaptic_weight_dist,
 								synaptic_weight: json_data.synaptic_weight,
+								param_synaptic_weight_distribution: json_data.param_synaptic_weight_distribution,
+								param_synaptic_weight_p1: json_data.param_synaptic_weight_p1,
+								param_synaptic_weight_p2: json_data.param_synaptic_weight_p2,
+								param_synaptic_weight_fx: json_data.param_synaptic_weight_fx,
+								param_synaptic_delay_dist: json_data.param_synaptic_delay_dist,
 								synaptic_delay: json_data.synaptic_delay,
+								param_synaptic_delay_distribution: json_data.param_synaptic_delay_distribution,
+								param_synaptic_delay_p1: json_data.param_synaptic_delay_p1,
+								param_synaptic_delay_p2: json_data.param_synaptic_delay_p2,
+								param_synaptic_delay_fx: json_data.param_synaptic_delay_fx,
+								TsodyksMarkram_U_dist: json_data.TsodyksMarkram_U_dist,
 								TsodyksMarkram_U: json_data.TsodyksMarkram_U,
+								TsodyksMarkram_U_distribution: json_data.TsodyksMarkram_U_distribution,
+								TsodyksMarkram_U_p1: json_data.TsodyksMarkram_U_p1,
+								TsodyksMarkram_U_p2: json_data.TsodyksMarkram_U_p2,
+								TsodyksMarkram_U_fx: json_data.TsodyksMarkram_U_fx,
+								TsodyksMarkram_tau_rec_dist: json_data.TsodyksMarkram_tau_rec_dist,
 								TsodyksMarkram_tau_rec: json_data.TsodyksMarkram_tau_rec,
+								TsodyksMarkram_tau_rec_distribution: json_data.TsodyksMarkram_tau_rec_distribution,
+								TsodyksMarkram_tau_rec_p1: json_data.TsodyksMarkram_tau_rec_p1,
+								TsodyksMarkram_tau_rec_p2: json_data.TsodyksMarkram_tau_rec_p2,
+								TsodyksMarkram_tau_rec_fx: json_data.TsodyksMarkram_tau_rec_fx,
+								TsodyksMarkram_tau_facil_dist: json_data.TsodyksMarkram_tau_facil_dist,
 								TsodyksMarkram_tau_facil: json_data.TsodyksMarkram_tau_facil,
+								TsodyksMarkram_tau_facil_distribution: json_data.TsodyksMarkram_tau_facil_distribution,
+								TsodyksMarkram_tau_facil_p1: json_data.TsodyksMarkram_tau_facil_p1,
+								TsodyksMarkram_tau_facil_p2: json_data.TsodyksMarkram_tau_facil_p2,
+								TsodyksMarkram_tau_facil_fx: json_data.TsodyksMarkram_tau_facil_fx,
 								AllToAll_allow_self_connections: json_data.AllToAll_allow_self_connections,
 								FixedProbability_p_connect: json_data.FixedProbability_p_connect,
 								FixedProbability_allow_self_connections: json_data.FixedProbability_allow_self_connections,
@@ -462,7 +763,8 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 				});
 			} else if(graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell)){
 				menu.addItem('Create Self Projection', null, function(){
-					graph.insertEdge(cell, null, '', cell, cell)
+					graph.insertEdge(cell, null, '', cell, cell);
+					$scope.keep_xml_graph_data();
 				});
 				menu.addItem('Edit Population', null, function(){
 					if((cell.data_cell != null) & (cell.data_cell != "")){
@@ -521,43 +823,192 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 							// level: json_data.level,
 							size: json_data.size,
 							celltype: json_data.celltype,
+							v_rest_dist: json_data.v_rest_dist,
+							param_v_rest_dist: json_data.param_v_rest_dist,
 							param_v_rest: json_data.param_v_rest,
+							param_v_rest_distribution: json_data.param_v_rest_distribution,
+							param_v_rest_p1: json_data.param_v_rest_p1,
+							param_v_rest_p2: json_data.param_v_rest_p2,
+							param_v_rest_fx: json_data.param_v_rest_fx,
+							param_cm_dist: json_data.param_cm_dist,
 							param_cm: json_data.param_cm,
+							param_cm_distribution: json_data.param_cm_distribution,
+							param_cm_p1: json_data.param_cm_p1,
+							param_cm_p2: json_data.param_cm_p2,
+							param_cm_fx: json_data.param_cm_fx,
+							param_tau_m_dist: json_data.param_tau_m_dist,
 							param_tau_m: json_data.param_tau_m,
+							param_tau_m_distribution: json_data.param_tau_m_distribution,
+							param_tau_m_p1: json_data.param_tau_m_p1,
+							param_tau_m_p2: json_data.param_tau_m_p2,
+							param_tau_m_fx: json_data.param_tau_m_fx,
+							param_tau_refrac_dist: json_data.param_tau_refrac_dist,
 							param_tau_refrac: json_data.param_tau_refrac,
+							param_tau_refrac_distribution: json_data.param_tau_refrac_distribution, 
+							param_tau_refrac_p1: json_data.param_tau_refrac_p1, 
+							param_tau_refrac_p2: json_data.param_tau_refrac_p2, 
+							param_tau_refrac_fx: json_data.param_tau_refrac_fx,
+							param_tau_syn_E_dist: json_data.param_tau_syn_E_dist,
 							param_tau_syn_E: json_data.param_tau_syn_E,
+							param_tau_syn_E_distribution: json_data.param_tau_syn_E_distribution,
+							param_tau_syn_E_p1: json_data.param_tau_syn_E_p1,
+							param_tau_syn_E_p2: json_data.param_tau_syn_E_p2,
+							param_tau_syn_E_fx: json_data.param_tau_syn_E_fx,
+							param_tau_syn_I_dist: json_data.param_tau_syn_I_dist,
 							param_tau_syn_I: json_data.param_tau_syn_I,
+							param_tau_syn_I_distribution: json_data.param_tau_syn_I_distribution,
+							param_tau_syn_I_p1: json_data.param_tau_syn_I_p1,
+							param_tau_syn_I_p2: json_data.param_tau_syn_I_p2,
+							param_tau_syn_I_fx: json_data.param_tau_syn_I_fx,
+							param_i_offset_dist: json_data.param_i_offset_dist,
 							param_i_offset: json_data.param_i_offset,
+							param_i_offset_distribution: json_data.param_i_offset_distribution,
+							param_i_offset_p1: json_data.param_i_offset_p1,
+							param_i_offset_p2: json_data.param_i_offset_p2,
+							param_i_offset_fx: json_data.param_i_offset_fx,
+							param_v_reset_dist: json_data.param_v_reset_dist,
 							param_v_reset: json_data.param_v_reset,
+							param_v_reset_distribution: json_data.param_v_reset_distribution,
+							param_v_reset_p1: json_data.param_v_reset_p1,
+							param_v_reset_p2: json_data.param_v_reset_p2,
+							param_v_reset_fx: json_data.param_v_reset_fx,
+							param_v_thresh_dist: json_data.param_v_thresh_dist,
 							param_v_thresh: json_data.param_v_thresh,
+							param_v_thresh_distribution: json_data.param_v_thresh_distribution, 
+							param_v_thresh_p1: json_data.param_v_thresh_p1, 
+							param_v_thresh_p2: json_data.param_v_thresh_p2, 
+							param_v_thresh_fx: json_data.param_v_thresh_fx,
+							param_e_rev_E_dist: json_data.param_e_rev_E_dist,
 							param_e_rev_E: json_data.param_e_rev_E,
+							param_e_rev_E_distribution: json_data.param_e_rev_E_distribution, 
+							param_e_rev_E_p1: json_data.param_e_rev_E_p1, 
+							param_e_rev_E_p2: json_data.param_e_rev_E_p2, 
+							param_e_rev_E_fx: json_data.param_e_rev_E_fx,
+							param_e_rev_I_dist: json_data.param_e_rev_I_dist,
 							param_e_rev_I: json_data.param_e_rev_I,
+							param_e_rev_I_distribution: json_data.param_e_rev_I_distribution, 
+							param_e_rev_I_p1: json_data.param_e_rev_I_p1, 
+							param_e_rev_I_p2: json_data.param_e_rev_I_p2, 
+							param_e_rev_I_fx: json_data.param_e_rev_I_fx,
+							param_gbar_Na_dist: json_data.param_gbar_Na_dist,
 							param_gbar_Na: json_data.param_gbar_Na,
+							param_gbar_Na_distribution: json_data.param_gbar_Na_distribution, 
+							param_gbar_Na_p1: json_data.param_gbar_Na_p1, 
+							param_gbar_Na_p2: json_data.param_gbar_Na_p2, 
+							param_gbar_Na_fx: json_data.param_gbar_Na_fx,
+							param_gbar_K_dist: json_data.param_gbar_K_dist,
 							param_gbar_K: json_data.param_gbar_K,
+							param_gbar_K_distribution: json_data.param_gbar_K_distribution, 
+							param_gbar_K_p1: json_data.param_gbar_K_p1, 
+							param_gbar_K_p2: json_data.param_gbar_K_p2, 
+							param_gbar_K_fx: json_data.param_gbar_K_fx,
+							param_g_leak_dist: json_data.param_g_leak_dist,
 							param_g_leak: json_data.param_g_leak,
+							param_g_leak_distribution: json_data.param_g_leak_distribution,
+							param_g_leak_p1: json_data.param_g_leak_p1,
+							param_g_leak_p2: json_data.param_g_leak_p2, 
+							param_g_leak_fx: json_data.param_g_leak_fx,
+							param_v_offset_dist: json_data.param_v_offset_dist,
 							param_v_offset: json_data.param_v_offset,
+							param_v_offset_distribution: json_data.param_v_offset_distribution, 
+							param_v_offset_p1: json_data.param_v_offset_p1, 
+							param_v_offset_p2: json_data.param_v_offset_p2, 
+							param_v_offset_fx: json_data.param_v_offset_fx,
+							param_e_rev_Na_dist: json_data.param_e_rev_Na_dist,
 							param_e_rev_Na: json_data.param_e_rev_Na,
+							param_e_rev_Na_distribution: json_data.param_e_rev_Na_distribution, 
+							param_e_rev_Na_p1: json_data.param_e_rev_Na_p1, 
+							param_e_rev_Na_p2: json_data.param_e_rev_Na_p2, 
+							param_e_rev_Na_fx: json_data.param_e_rev_Na_fx,
+							param_e_rev_K_dist: json_data.param_e_rev_K_dist,
 							param_e_rev_K: json_data.param_e_rev_K,
+							param_e_rev_K_distribution: json_data.param_e_rev_K_distribution,
+							param_e_rev_K_p1: json_data.param_e_rev_K_p1,
+							param_e_rev_K_p2: json_data.param_e_rev_K_p2,
+							param_e_rev_K_fx: json_data.param_e_rev_K_fx,
+							param_e_rev_leak_dist: json_data.param_e_rev_leak_dist,
 							param_e_rev_leak: json_data.param_e_rev_leak,
+							param_e_rev_leak_distribution: json_data.param_e_rev_leak_distribution,
+							param_e_rev_leak_p1: json_data.param_e_rev_leak_p1,
+							param_e_rev_leak_p2: json_data.param_e_rev_leak_p2,
+							param_e_rev_leak_fx: json_data.param_e_rev_leak_fx,
 							param_tau_cm: json_data.param_tau_cm,
+							param_v_spike_dist: json_data.param_v_spike_dist,
 							param_v_spike: json_data.param_v_spike,
+							param_v_spike_distribution: json_data.param_v_spike_distribution,
+							param_v_spike_p1: json_data.param_v_spike_p1,
+							param_v_spike_p2: json_data.param_v_spike_p2,
+							param_v_spike_fx: json_data.param_v_spike_fx,
+							param_a_dist: json_data.param_a_dist,
 							param_a: json_data.param_a,
+							param_a_distribution: json_data.param_a_distribution,
+							param_a_p1: json_data.param_a_p1,
+							param_a_p2: json_data.param_a_p2,
+							param_a_fx: json_data.param_a_fx,
+							param_b_dist: json_data.param_b_dist,
 							param_b: json_data.param_b,
+							param_b_distribution: json_data.param_b_distribution,
+							param_b_p1: json_data.param_b_p1,
+							param_b_p2: json_data.param_b_p2,
+							param_b_fx: json_data.param_b_fx,
+							param_delta_T_dist: json_data.param_delta_T_dist,
 							param_delta_T: json_data.param_delta_T,
+							param_delta_T_distribution: json_data.param_delta_T_distribution,
+							param_delta_T_p1: json_data.param_delta_T_p1,
+							param_delta_T_p2: json_data.param_delta_T_p2,
+							param_delta_T_fx: json_data.param_delta_T_fx,
+							param_tau_w_dist: json_data.param_tau_w_dist,
 							param_tau_w: json_data.param_tau_w,
+							param_tau_w_distribution: json_data.param_tau_w_distribution,
+							param_tau_w_p1: json_data.param_tau_w_p1,
+							param_tau_w_p2: json_data.param_tau_w_p2,
+							param_tau_w_fx: json_data.param_tau_w_fx,
 							init_isyn_exc: json_data.init_isyn_exc,
 							init_isyn_inh: json_data.init_isyn_inh,
 							init_gsyn_exc: json_data.init_gsyn_exc,
 							init_gsyn_inh: json_data.init_gsyn_inh,
+							init_v_dist: json_data.init_v_dist,
 							init_v: json_data.init_v,
+							init_v_distribution: json_data.init_v_distribution,
+							init_v_p1: json_data.init_v_p1,
+							init_v_p2: json_data.init_v_p2,
+							init_v_fx: json_data.init_v_fx,
+							init_w_dist: json_data.init_w_dist,
 							init_w: json_data.init_w,
+							init_w_distribution: json_data.init_w_distribution,
+							init_w_p1: json_data.init_w_p1,
+							init_w_p2: json_data.init_w_p2,
+							init_w_fx: json_data.init_w_fx,
 							Recording_spikes: json_data.Recording_spikes,
 							Recording_v: json_data.Recording_v,
 							Simulation_time: json_data.Simulation_time,
 							Simulation_name: json_data.Simulation_name,
+							param_rate_dist: json_data.param_rate_dist,
 							param_rate: json_data.param_rate,
+							param_rate_distribution: json_data.param_rate_distribution,
+							param_rate_p1: json_data.param_rate_p1,
+							param_rate_p2: json_data.param_rate_p2,
+							param_rate_fx: json_data.param_rate_fx,
+							param_start_dist: json_data.param_start_dist,
 							param_start: json_data.param_start,
+							param_start_distribution: json_data.param_start_distribution,
+							param_start_p1: json_data.param_start_p1,
+							param_start_p2: json_data.param_start_p2,
+							param_start_fx: json_data.param_start_fx,
+							param_duration_dist: json_data.param_duration_dist,
 							param_duration: json_data.param_duration,
+							param_duration_distribution: json_data.param_duration_distribution,
+							param_duration_p1: json_data.param_duration_p1,
+							param_duration_p2: json_data.param_duration_p2,
+							param_duration_fx: json_data.param_duration_fx,
+							param_spike_times_dist: json_data.param_spike_times_dist,
+							param_spike_times: json_data.param_spike_times,
+							param_spike_times_distribution: json_data.param_spike_times_distribution,
+							param_spike_times_p1: json_data.param_spike_times_p1,
+							param_spike_times_p2: json_data.param_spike_times_p2,
+							param_spike_times_fx: json_data.param_spike_times_fx,
+							param_spike_times_file: json_data.param_spike_times_file,
+							param_spike_times_file_content: json_data.param_spike_times_file_content,
 						}
 					}).then(function(modal) {
 						modal.element.modal();
@@ -618,586 +1069,64 @@ graphSchemaApp.controller('graphController', function($scope, $rootScope, $state
 					graph.getModel().cells[cell.id].setStyle("fontColor=white;fillColor=#9900ff");
 					graph.refresh();
 				}, submenu_color);
+				menu.addItem('Duplicate Population', null, function(){
+					//shift position of duplicated cell on the graph
+					var cell2 = cell;
+					var x = cell2.geometry.x;
+					var y = cell2.geometry.y;
+					x = x + 20;
+					y = y + 20;
+					cell2.geometry.x = x;
+					cell2.geometry.y = y;
+					var tabcell = new Array(cell2);
+					graph.getModel().beginUpdate();
+					graph.addCells(graph.cloneCells(tabcell));
+					// Adds cells to the model in a single step
+					graph.getModel().endUpdate();
+				});
+			} else if(graph.getSelectionCount() > 1){
+				menu.addItem('Duplicate selection', null, function(){
+					var cell2 = [];
+					cells = graph.getSelectionCells();
+					for(i=0; i<cells.length; i++){
+						cell2[i] = cells[i];
+						var x = cell2[i].geometry.x;
+						var y = cell2[i].geometry.y;
+						x = x + 20;
+						y = y + 20;
+						cell2[i].geometry.x = x;
+						cell2[i].geometry.y = y;
+					}
+					graph.getModel().beginUpdate();
+					graph.addCells(graph.cloneCells(cell2));
+					graph.getModel().endUpdate();
+				});
 			}
 		};
 	}
 });
 
-graphSchemaApp.controller('PopDialogController', ['$scope', '$element', 'title', 'close', 'name_value', 'size', 'celltype',
-'param_v_rest', 'param_cm', 'param_tau_m', 'param_tau_m', 'param_tau_m', 'param_tau_refrac', 'param_tau_syn_E', 'param_tau_syn_I',
-'param_i_offset', 'param_v_reset', 'param_v_thresh', 'param_e_rev_E', 'param_e_rev_I', 'param_gbar_Na', 'param_gbar_K', 'param_g_leak',
-'param_v_offset', 'param_e_rev_Na', 'param_e_rev_K', 'param_e_rev_leak', 'param_tau_cm', 'param_v_spike', 'param_a', 'param_b',
-'param_delta_T', 'param_tau_w', 'init_isyn_exc', 'init_isyn_inh', 'init_gsyn_exc', 'init_gsyn_inh', 'init_v', 'init_w',
-'Recording_spikes', 'Recording_v', 'Simulation_time', 'Simulation_name', 'param_rate', 'param_start', 'param_duration',
-	function($scope, $element, title, close, name_value, size, celltype,
-		param_v_rest, param_cm, param_tau_m, param_tau_m, param_tau_m, param_tau_refrac, param_tau_syn_E, param_tau_syn_I,
-		param_i_offset, param_v_reset, param_v_thresh, param_e_rev_E, param_e_rev_I, param_gbar_Na, param_gbar_K, param_g_leak,
-		param_v_offset, param_e_rev_Na, param_e_rev_K, param_e_rev_leak, param_tau_cm, param_v_spike, param_a, param_b,
-		param_delta_T, param_tau_w, init_isyn_exc, init_isyn_inh, init_gsyn_exc, init_gsyn_inh, init_v, init_w,
-		Recording_spikes, Recording_v, Simulation_time, Simulation_name, param_rate, param_start, param_duration) {
-		$scope.title = title;
-		$scope.name_value = name_value;
-		// $scope.level = level;
-		$scope.size = size;
-		$scope.celltype = celltype;
-		$scope.param_v_rest = param_v_rest;
-		$scope.param_cm = param_cm;
-		$scope.param_tau_m = param_tau_m;
-		$scope.param_tau_refrac = param_tau_refrac;
-		$scope.param_tau_syn_E = param_tau_syn_E;
-		$scope.param_tau_syn_I = param_tau_syn_I;
-		$scope.param_i_offset = param_i_offset;
-		$scope.param_v_reset = param_v_reset;
-		$scope.param_v_thresh = param_v_thresh;
-		$scope.param_e_rev_E = param_e_rev_E;
-		$scope.param_e_rev_I = param_e_rev_I;
-		$scope.param_gbar_Na = param_gbar_Na;
-		$scope.param_gbar_K = param_gbar_K;
-		$scope.param_g_leak = param_g_leak;
-		$scope.param_v_offset = param_v_offset;
-		$scope.param_e_rev_Na = param_e_rev_Na;
-		$scope.param_e_rev_K = param_e_rev_K;
-		$scope.param_e_rev_leak = param_e_rev_leak;
-		$scope.param_tau_cm = param_tau_cm;
-		$scope.param_v_spike = param_v_spike;
-		$scope.param_a = param_a;
-		$scope.param_b = param_b;
-		$scope.param_delta_T = param_delta_T;
-		$scope.param_tau_w = param_tau_w;
-		$scope.init_isyn_exc = init_isyn_exc;
-		$scope.init_isyn_inh = init_isyn_inh;
-		$scope.init_gsyn_exc = init_gsyn_exc;
-		$scope.init_gsyn_inh = init_gsyn_inh;
-		$scope.init_v = init_v;
-		$scope.init_w = init_w;
-		$scope.Recording_spikes = Recording_spikes;
-		$scope.Recording_v = Recording_v;
-		$scope.Simulation_time = Simulation_time;
-		$scope.Simulation_name = Simulation_name;
-		$scope.param_rate = param_rate;
-		$scope.param_start = param_start;
-		$scope.param_duration = param_duration;
 
-		if($scope.celltype == "empty_no_edge"){
-			$scope.celltype = "IF_curr_alpha";
-		}
+graphSchemaApp.service('DataTransfert', function(){
+	this.xml_graph_data = "";
+});
 
-		$scope.updateForm = function() {
-			if(($scope.celltype == "IF_curr_alpha") || ($scope.celltype == "IF_curr_exp")){
-				if(($scope.param_v_rest == "") || ($scope.param_v_rest == null)){ $scope.param_v_rest = -65,0; }
-				if(($scope.param_cm == "") || ($scope.param_cm == null)){ $scope.param_cm = 1,0; }
-				if(($scope.param_tau_m == "") || ($scope.param_tau_m == null)){ $scope.param_tau_m = 20,0; }
-				if(($scope.param_tau_refrac == "") || ($scope.param_tau_refrac == null)){ $scope.param_tau_refrac = 0,0; }
-				if(($scope.param_tau_syn_E == "") || ($scope.param_tau_syn_E == null)){ $scope.param_tau_syn_E = 5,0; }
-				if(($scope.param_tau_syn_I == "") || ($scope.param_tau_syn_I == null)){ $scope.param_tau_syn_I = 5,0; }
-				if(($scope.param_i_offset == "") || ($scope.param_i_offset == null)){ $scope.param_i_offset = 0,0; }
-				if(($scope.param_v_reset == "") || ($scope.param_v_reset == null)){ $scope.param_v_reset = -65,0; }
-				if(($scope.param_v_thresh == "") || ($scope.param_v_thresh == null)){ $scope.param_v_thresh = -50,0; }
-				if(($scope.init_v == "") || ($scope.init_v == null)){ $scope.init_v = -65,0; }
-				if(($scope.init_isyn_exc == "") || ($scope.init_isyn_exc == null)){ $scope.init_isyn_exc = 0,0; }
-				if(($scope.init_isyn_inh == "") || ($scope.init_isyn_inh == null)){ $scope.init_isyn_inh = 0,0; }
+graphSchemaApp.controller('neoViewerController', function($scope, jobResults){
+	$scope.collab_id = 4293;  //default value
+	job = jobResults.get({collab_id:$scope.collab_id}, function(data, status){
+		//console.log("data : " + data);
+		console.log("data id : " + data.objects[0].id);
+
+		var data_id = data.objects[0].id;
+		$scope.neo_url = [];
+		job = jobResults.get({id:data_id}, function(data, status){
+			console.log("data : " + data.output_data);
+			var i = 0;
+			for(i = 0; i < data.output_data.length; i++){
+				$scope.neo_url[i] = data.output_data[i].url;
 			}
-			if(($scope.celltype == "IF_cond_alpha") || ($scope.celltype == "IF_cond_exp")){
-				if(($scope.param_v_rest == "") || ($scope.param_v_rest == null)){ $scope.param_v_rest = -65,0; }
-				if(($scope.param_cm == "") || ($scope.param_cm == null)){ $scope.param_cm = 1,0; }
-				if(($scope.param_tau_m == "") || ($scope.param_tau_m == null)){ $scope.param_tau_m = 20,0; }
-				if(($scope.param_tau_refrac == "") || ($scope.param_tau_refrac == null)){ $scope.param_tau_refrac = 0,0; }
-				if(($scope.param_tau_syn_E == "") || ($scope.param_tau_syn_E == null)){ $scope.param_tau_syn_E = 5,0; }
-				if(($scope.param_tau_syn_I == "") || ($scope.param_tau_syn_I == null)){ $scope.param_tau_syn_I = 5,0; }
-				if(($scope.param_e_rev_E == "") || ($scope.param_e_rev_E == null)){ $scope.param_e_rev_E = 5.0; }
-				if(($scope.param_e_rev_I == "") || ($scope.param_e_rev_I == null)){ $scope.param_e_rev_I = 0.0; }
-				if(($scope.param_i_offset == "") || ($scope.param_i_offset == null)){ $scope.param_i_offset = 0,0; }
-				if(($scope.param_v_reset == "") || ($scope.param_v_reset == null)){ $scope.param_v_reset = -65,0; }
-				if(($scope.param_v_thresh == "") || ($scope.param_v_thresh == null)){ $scope.param_v_thresh = -50,0; }
-				if(($scope.init_v == "") || ($scope.init_v == null)){ $scope.init_v = -65,0; }
-				if(($scope.init_gsyn_exc == "") || ($scope.init_gsyn_exc == null)){ $scope.init_gsyn_exc = 0,0; }
-				if(($scope.init_gsyn_inh == "") || ($scope.init_gsyn_inh == null)){ $scope.init_gsyn_inh = 0,0; }
-			}
-			if($scope.celltype == "HH_cond_exp"){
-				if(($scope.param_gbar_Na == "") || ($scope.param_gbar_Na == null)){ $scope.param_gbar_Na = 20,0; }
-				if(($scope.param_gbar_K == "") || ($scope.param_gbar_K == null)){ $scope.param_gbar_K = 6.0; }
-				if(($scope.param_g_leak == "") || ($scope.param_g_leak == null)){ $scope.param_g_leak = 0,01; }
-				if(($scope.param_cm == "") || ($scope.param_cm == null)){ $scope.param_cm = 0,2; }
-				if(($scope.param_v_offset == "") || ($scope.param_v_offset == null)){ $scope.param_v_offset = -63,0; }
-				if(($scope.param_e_rev_Na == "") || ($scope.param_e_rev_Na == null)){ $scope.param_e_rev_Na = 50,0; }
-				if(($scope.param_e_rev_K == "") || ($scope.param_e_rev_K == null)){ $scope.param_e_rev_K = -90,0; }
-				if(($scope.param_e_rev_leak == "") || ($scope.param_e_rev_leak == null)){ $scope.param_e_rev_leak = 65,0; }
-				if(($scope.param_e_rev_E == "") || ($scope.param_e_rev_E == null)){ $scope.param_e_rev_E = 0,0; }
-				if(($scope.param_e_rev_I == "") || ($scope.param_e_rev_I == null)){ $scope.param_e_rev_I = -80,0; }
-				if(($scope.param_tau_syn_E == "") || ($scope.param_tau_syn_E == null)){ $scope.param_tau_syn_E = 5,0; }
-				if(($scope.param_tau_syn_I == "") || ($scope.param_tau_syn_I == null)){ $scope.param_tau_syn_I = 5,0; }
-				if(($scope.init_v == "") || ($scope.init_v == null)){ $scope.init_v = -65,0; }
-				if(($scope.init_gsyn_exc == "") || ($scope.init_gsyn_exc == null)){ $scope.init_gsyn_exc = 0,0; }
-				if(($scope.init_gsyn_inh == "") || ($scope.init_gsyn_inh == null)){ $scope.init_gsyn_inh = 0,0; }
-			}
-			if($scope.celltype == "EIF_cond_alpha_isfa_ista"){
-				if(($scope.param_tau_cm == "") || ($scope.param_tau_cm == null)){ $scope.param_tau_cm = 0,281; }
-				if(($scope.param_tau_refrac == "") || ($scope.param_tau_refrac == null)){ $scope.param_tau_refrac = 0,0; }
-				if(($scope.param_v_spike == "") || ($scope.param_v_spike == null)){ $scope.param_v_spike = 0,0; }
-				if(($scope.param_v_reset == "") || ($scope.param_v_reset == null)){ $scope.param_v_reset = -70,6; }
-				if(($scope.param_v_rest == "") || ($scope.param_v_rest == null)){ $scope.param_v_rest = -70,6; }
-				if(($scope.param_tau_m == "") || ($scope.param_tau_m == null)){ $scope.param_tau_m = 9,3667; }
-				if(($scope.param_i_offset == "") || ($scope.param_i_offset == null)){ $scope.param_i_offset = 0,0; }
-				if(($scope.param_a == "") || ($scope.param_a == null)){ $scope.param_a = 4,0; }
-				if(($scope.param_b == "") || ($scope.param_b == null)){ $scope.param_b = 0,0805; }
-				if(($scope.param_delta_T == "") || ($scope.param_delta_T == null)){ $scope.param_delta_T = 2,0; }
-				if(($scope.param_tau_w == "") || ($scope.param_tau_w == null)){ $scope.param_tau_w = 144,0; }
-				if(($scope.param_v_thresh == "") || ($scope.param_v_thresh == null)){ $scope.param_v_thresh = -50,4; }
-				if(($scope.param_e_rev_E == "") || ($scope.param_e_rev_E == null)){ $scope.param_e_rev_E = 0,0; }
-				if(($scope.param_tau_syn_E == "") || ($scope.param_tau_syn_E == null)){ $scope.param_tau_syn_E = 5,0; }
-				if(($scope.param_e_rev_I == "") || ($scope.param_e_rev_I == null)){ $scope.param_e_rev_I = -80,0; }
-				if(($scope.param_tau_syn_I == "") || ($scope.param_tau_syn_I == null)){ $scope.param_tau_syn_I = 5,0; }
-				if(($scope.init_v == "") || ($scope.init_v == null)){ $scope.init_v = -65,0; }
-				if(($scope.init_w == "") || ($scope.init_w == null)){ $scope.init_w = 0,0; }
-				if(($scope.init_gsyn_exc == "") || ($scope.init_gsyn_exc == null)){ $scope.init_gsyn_exc = 0,0; }
-				if(($scope.init_gsyn_inh == "") || ($scope.init_gsyn_inh == null)){ $scope.init_gsyn_inh = 0,0; }
-			}
-			if($scope.celltype == "SpikeSourcePoisson"){
-				if(($scope.param_rate == "") || ($scope.param_rate == null)){ $scope.param_rate = 1; }
-				if(($scope.param_start == "") || ($scope.param_start == null)){ $scope.param_start = 0; }
-				if(($scope.param_duration == "") || ($scope.param_duration == null)){ $scope.param_duration = 10000000000; }
-			}
-			if($scope.celltype == "SpikeSourceArray"){
-				if(($scope.param_duration == "") || ($scope.param_duration == null)){ $scope.param_duration = 10000000000; }
-			}
-		};
-
-		if(($scope.celltype == "") || ($scope.celltype == null)){
-			$scope.celltype = "IF_curr_alpha";
-		}
-		$scope.beforeClose = function(){
-			if(($scope.name_value == "") || ($scope.name_value == null)){
-				$scope.msgAlert = "Name is required."
-			}
-			else if(($scope.size == null) || ($scope.size.toString() == "")){
-				$scope.msgAlert = "Size value is required."
-			} else{
-				$scope.close()
-			}
-		};
-		$scope.close = function() {
-			close({
-				name_value: $scope.name_value,
-				// level: $scope.level,
-				size: $scope.size,
-				celltype: $scope.celltype,
-				param_v_rest: $scope.param_v_rest,
-				param_cm: $scope.param_cm,
-				param_tau_m: $scope.param_tau_m,
-				param_tau_refrac: $scope.param_tau_refrac,
-				param_tau_syn_E: $scope.param_tau_syn_E,
-				param_tau_syn_I: $scope.param_tau_syn_I,
-				param_i_offset: $scope.param_i_offset,
-				param_v_reset: $scope.param_v_reset,
-				param_v_thresh: $scope.param_v_thresh,
-				param_e_rev_E: $scope.param_e_rev_E,
-				param_e_rev_I: $scope.param_e_rev_I,
-				param_gbar_Na: $scope.param_gbar_Na,
-				param_gbar_K: $scope.param_gbar_K,
-				param_g_leak: $scope.param_g_leak,
-				param_v_offset: $scope.param_v_offset,
-				param_e_rev_Na: $scope.param_e_rev_Na,
-				param_e_rev_K: $scope.param_e_rev_K,
-				param_e_rev_leak: $scope.param_e_rev_leak,
-				param_tau_cm: $scope.param_tau_cm,
-				param_v_spike: $scope.param_v_spike,
-				param_a: $scope.param_a,
-				param_b: $scope.param_b,
-				param_delta_T: $scope.param_delta_T,
-				param_tau_w: $scope.param_tau_w,
-				init_isyn_exc: $scope.init_isyn_exc,
-				init_isyn_inh: $scope.init_isyn_inh,
-				init_gsyn_exc: $scope.init_gsyn_exc,
-				init_gsyn_inh: $scope.init_gsyn_inh,
-				init_v: $scope.init_v,
-				init_w: $scope.init_w,
-				Recording_spikes: $scope.Recording_spikes,
-				Recording_v: $scope.Recording_v,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-				param_rate: $scope.param_rate,
-				param_start: $scope.param_start,
-				param_duration: $scope.param_duration,
-			}, 100);
-			$('.modal-backdrop').remove();
-		};
-		//  This cancel function must use the bootstrap, 'modal' function because
-		//  the doesn't have the 'data-dismiss' attribute.
-		$scope.cancel = function() {
-			//  Manually hide the modal.
-			$element.modal('hide');
-			//  Now call close, returning control to the caller.
-			close({
-				name_value: name_value,
-				// level: level,
-				size: size,
-				celltype: celltype,
-				param_v_rest: param_v_rest,
-				param_cm: param_cm,
-				param_tau_m: param_tau_m,
-				param_tau_refrac: param_tau_refrac,
-				param_tau_syn_E: param_tau_syn_E,
-				param_tau_syn_I: param_tau_syn_I,
-				param_i_offset: param_i_offset,
-				param_v_reset: param_v_reset,
-				param_v_thresh: param_v_thresh,
-				param_e_rev_E: param_e_rev_E,
-				param_e_rev_I: param_e_rev_I,
-				param_gbar_Na: param_gbar_Na,
-				param_gbar_K: param_gbar_K,
-				param_g_leak: param_g_leak,
-				param_v_offset: param_v_offset,
-				param_e_rev_Na: param_e_rev_Na,
-				param_e_rev_K: param_e_rev_K,
-				param_e_rev_leak: param_e_rev_leak,
-				param_tau_cm: param_tau_cm,
-				param_v_spike: param_v_spike,
-				param_a: param_a,
-				param_b: param_b,
-				param_delta_T: param_delta_T,
-				param_tau_w: param_tau_w,
-				init_isyn_exc: init_isyn_exc,
-				init_isyn_inh: init_isyn_inh,
-				init_gsyn_exc: init_gsyn_exc,
-				init_gsyn_inh: init_gsyn_inh,
-				init_v: init_v,
-				init_w: init_w,
-				Recording_spikes: $scope.Recording_spikes,
-				Recording_v: $scope.Recording_v,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-				param_rate: $scope.param_rate,
-				param_start: $scope.param_start,
-				param_duration: $scope.param_duration,
-			}, 100); // close, but give 100ms for bootstrap to animate
-			$('.modal-backdrop').remove();
-		};
-	}
-]);
-
-
-graphSchemaApp.controller('PopDialogController_spike', ['$scope', '$element', 'title', 'close', 'name_value',
-'synapse_type','receptor_type', 'connectors_type',
-'synaptic_weight', 'synaptic_delay',
-'TsodyksMarkram_U', 'TsodyksMarkram_tau_rec', 'TsodyksMarkram_tau_facil',
-'FixedProbability_p_connect', 'AllToAll_allow_self_connections',
-'FixedProbability_allow_self_connections', 'FromFile_file', 'FromFile_distributed', 'FromFile_safe', 'FromFile_callback',
-'FixedNumberPre_n', 'FixedNumberPre_with_replacement', 'FixedNumberPre_allow_self_connections', 'FixedNumberPost_n',
-'FixedNumberPost_with_replacement', 'FixedNumberPost_allow_self_connections', 'FixedTotalNumber_n', 'FixedTotalNumber_with_replacement',
-'FixedTotalNumber_allow_self_connections', 'DistanceDependent_d_expression', 'DistanceDependent_allow_self_connections',
-	function($scope, $element, title, close, name_value,
-		synapse_type, receptor_type, connectors_type,
-		synaptic_weight, synaptic_delay,
-		TsodyksMarkram_U, TsodyksMarkram_tau_rec, TsodyksMarkram_tau_facil,
-		FixedProbability_p_connect, AllToAll_allow_self_connections,
-		FixedProbability_allow_self_connections, FromFile_file, FromFile_distributed, FromFile_safe, FromFile_callback,
-		FixedNumberPre_n, FixedNumberPre_with_replacement, FixedNumberPre_allow_self_connections, FixedNumberPost_n,
-		FixedNumberPost_with_replacement, FixedNumberPost_allow_self_connections, FixedTotalNumber_n, FixedTotalNumber_with_replacement,
-		FixedTotalNumber_allow_self_connections, DistanceDependent_d_expression, DistanceDependent_allow_self_connections) {
-		$scope.title = title;
-		$scope.name_value = name_value;
-		// $scope.level = level;
-		$scope.synapse_type = synapse_type;
-		$scope.receptor_type = receptor_type;
-		$scope.connectors_type = connectors_type;
-		$scope.synaptic_weight = synaptic_weight;
-		$scope.synaptic_delay = synaptic_delay;
-		$scope.TsodyksMarkram_U = TsodyksMarkram_U;
-		$scope.TsodyksMarkram_tau_rec = TsodyksMarkram_tau_rec;
-		$scope.TsodyksMarkram_tau_facil = TsodyksMarkram_tau_facil;
-		$scope.FixedProbability_p_connect = FixedProbability_p_connect;
-		$scope.AllToAll_allow_self_connections = AllToAll_allow_self_connections;
-		$scope.FixedProbability_allow_self_connections = FixedProbability_allow_self_connections;
-		$scope.FromFile_file = FromFile_file;
-		$scope.FromFile_distributed = FromFile_distributed;
-		$scope.FromFile_safe = FromFile_safe;
-		$scope.FromFile_callback = FromFile_callback;
-		$scope.FixedNumberPre_n = FixedNumberPre_n;
-		$scope.FixedNumberPre_with_replacement = FixedNumberPre_with_replacement;
-		$scope.FixedNumberPre_allow_self_connections = FixedNumberPre_allow_self_connections;
-		$scope.FixedNumberPost_n = FixedNumberPost_n;
-		$scope.FixedNumberPost_with_replacement = FixedNumberPost_with_replacement;
-		$scope.FixedNumberPost_allow_self_connections = FixedNumberPost_allow_self_connections;
-		$scope.FixedTotalNumber_n = FixedTotalNumber_n;
-		$scope.FixedTotalNumber_with_replacement = FixedTotalNumber_with_replacement;
-		$scope.FixedTotalNumber_allow_self_connections = FixedTotalNumber_allow_self_connections;
-		$scope.DistanceDependent_d_expression = DistanceDependent_d_expression;
-		$scope.DistanceDependent_allow_self_connections = DistanceDependent_allow_self_connections;
-
-		if($scope.celltype == "empty_edge"){
-			$scope.celltype = "projection";
-		}
-
-		if(($scope.synapse_type == "") || ($scope.synapse_type == null)){
-			$scope.synapse_type = "static";
-		}
-
-		// $scope.updateForm = function() {
-		// 	if(($scope.synaptic_weight == "") || ($scope.synaptic_weight == null)){ $scope.synaptic_weight = 0,0; }
-		// 	if(($scope.synaptic_delay == "") || ($scope.synaptic_delay == null)){ $scope.synaptic_delay = 0,0; }
-		// 	if(($scope.synapse_type == "TsodyksMarkram")){
-		// 		if(($scope.TsodyksMarkram_U == "") || ($scope.TsodyksMarkram_U == null)){ $scope.TsodyksMarkram_U = 0,5; }
-		// 		if(($scope.TsodyksMarkram_tau_rec == "") || ($scope.TsodyksMarkram_tau_rec == null)){ $scope.TsodyksMarkram_tau_rec = 100,0; }
-		// 		if(($scope.TsodyksMarkram_tau_facil == "") || ($scope.TsodyksMarkram_tau_facil == null)){ $scope.param_tau_m = 0,0; }
-		// 	}
-		// };
-
-		if(($scope.receptor_type == "") || ($scope.receptor_type == null)){
-			$scope.receptor_type = "excitatory";
-		}
-
-		if(($scope.connectors_type == "") || ($scope.connectors_type == null)){
-			$scope.connectors_type = "AllToAll";
-		}
-
-		$scope.beforeClose = function(){
-			if(($scope.name_value == "") || ($scope.name_value == null)){
-				$scope.msgAlert = "Name is required.";
-			}
-			else if(($scope.synaptic_weight == null) || ($scope.synaptic_weight.toString() == "")){
-				$scope.msgAlert = "Synaptic weight is required.";
-			}
-			else if(($scope.synaptic_delay == null) || ($scope.synaptic_delay.toString() == "")){
-				$scope.msgAlert = "Synaptic delay is required.";
-			}
-			else if(($scope.synapse_type == 'TsodyksMarkram') && (($scope.TsodyksMarkram_U == "") || ($scope.TsodyksMarkram_U == null))){
-				$scope.msgAlert = "U is required.";
-			}
-			else if(($scope.synapse_type == 'TsodyksMarkram') && (($scope.TsodyksMarkram_tau_facil == "") || ($scope.TsodyksMarkram_tau_facil == null))){
-				$scope.msgAlert = "tau_rec is required.";
-			}
-			else if(($scope.synapse_type == 'TsodyksMarkram') && (($scope.TsodyksMarkram_tau_rec == "") || ($scope.TsodyksMarkram_tau_rec == null))){
-				$scope.msgAlert = "tau_facil is required.";
-			}
-			else if(($scope.receptor_type == "") || ($scope.receptor_type == null)){
-				$scope.msgAlert = "Receptor type value is required.";
-			}
-			else {
-				$scope.close();
-			}
-		};
-
-		$scope.close = function() {
-			close({
-				name_value: $scope.name_value,
-				// level: $scope.level,
-				synapse_type: $scope.synapse_type,
-				receptor_type: $scope.receptor_type,
-				connectors_type: $scope.connectors_type,
-				synaptic_weight: $scope.synaptic_weight,
-				synaptic_delay: $scope.synaptic_delay,
-				TsodyksMarkram_U: $scope.TsodyksMarkram_U,
-				TsodyksMarkram_tau_rec: $scope.TsodyksMarkram_tau_rec,
-				TsodyksMarkram_tau_facil: $scope.TsodyksMarkram_tau_facil,
-				AllToAll_allow_self_connections: $scope.AllToAll_allow_self_connections,
-				FixedProbability_p_connect: $scope.FixedProbability_p_connect,
-				FixedProbability_allow_self_connections: $scope.FixedProbability_allow_self_connections,
-				FromFile_file: $scope.FromFile_file,
-				FromFile_distributed: $scope.FromFile_distributed,
-				FromFile_safe: $scope.FromFile_safe,
-				FromFile_callback: $scope.FromFile_callback,
-				FixedNumberPre_n: $scope.FixedNumberPre_n,
-				FixedNumberPre_with_replacement: $scope.FixedNumberPre_with_replacement,
-				FixedNumberPre_allow_self_connections: $scope.FixedNumberPre_allow_self_connections,
-				FixedNumberPost_n: $scope.FixedNumberPost_n,
-				FixedNumberPost_with_replacement: $scope.FixedNumberPost_with_replacement,
-				FixedNumberPost_allow_self_connections: $scope.FixedNumberPost_allow_self_connections,
-				FixedTotalNumber_n: $scope.FixedTotalNumber_n,
-				FixedTotalNumber_with_replacement: $scope.FixedTotalNumber_with_replacement,
-				FixedTotalNumber_allow_self_connections: $scope.FixedTotalNumber_allow_self_connections,
-				DistanceDependent_d_expression: $scope.DistanceDependent_d_expression,
-				DistanceDependent_allow_self_connections: $scope.DistanceDependent_allow_self_connections,
-				celltype: "projection",
-			}, 100);
-			$('.modal-backdrop').remove();
-		};
-		//  This cancel function must use the bootstrap, 'modal' function because
-		//  the doesn't have the 'data-dismiss' attribute.
-		$scope.cancel = function() {
-			//  Manually hide the modal.
-			$element.modal('hide');
-			//  Now call close, returning control to the caller.
-			close({
-				name_value: name_value,
-				// level: level,
-				synapse_type: $scope.synapse_type,
-				receptor_type: $scope.receptor_type,
-				connectors_type: $scope.connectors_type,
-				synaptic_weight: $scope.synaptic_weight,
-				synaptic_delay: $scope.synaptic_delay,
-				TsodyksMarkram_U: $scope.TsodyksMarkram_U,
-				TsodyksMarkram_tau_rec: $scope.TsodyksMarkram_tau_rec,
-				TsodyksMarkram_tau_facil: $scope.TsodyksMarkram_tau_facil,
-				AllToAll_allow_self_connections: $scope.AllToAll_allow_self_connections,
-				FixedProbability_p_connect: $scope.FixedProbability_p_connec,
-				FixedProbability_allow_self_connections: $scope.FixedProbability_allow_self_connections,
-				FromFile_file: $scope.FromFile_file,
-				FromFile_distributed: $scope.FromFile_distributed,
-				FromFile_safe: $scope.FromFile_safe,
-				FromFile_callback: $scope.FromFile_callback,
-				FixedNumberPre_n: $scope.FixedNumberPre_n,
-				FixedNumberPre_with_replacement: $scope.FixedNumberPre_with_replacement,
-				FixedNumberPre_allow_self_connections: $scope.FixedNumberPre_allow_self_connections,
-				FixedNumberPost_n: $scope.FixedNumberPost_n,
-				FixedNumberPost_with_replacement: $scope.FixedNumberPost_with_replacement,
-				FixedNumberPost_allow_self_connections: $scope.FixedNumberPost_allow_self_connections,
-				FixedTotalNumber_n: $scope.FixedTotalNumber_n,
-				FixedTotalNumber_with_replacement: $scope.FixedTotalNumber_with_replacement,
-				FixedTotalNumber_allow_self_connections: $scope.FixedTotalNumber_allow_self_connections,
-				DistanceDependent_d_expression: $scope.DistanceDependent_d_expression,
-				DistanceDependent_allow_self_connections: $scope.DistanceDependent_allow_self_connections,
-				celltype: "projection",
-			}, 100); // close, but give 100ms for bootstrap to animate
-			$('.modal-backdrop').remove();
-		};
-	}
-]);
-
-graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'title', 'scriptText', 'cells', 'close', 'hardware_platform',
-											 'jobService', 'Simulation_time', 'Simulation_name', 'bbpOidcSession', 'clbUser', '$location', 'clbContext',
-											 'python_script_string',
-	function($scope, $element, $http, title, scriptText, cells, close, hardware_platform,
-			 jobService, Simulation_time, Simulation_name, bbpOidcSession, clbUser, $location, clbContext,
-			 python_script_string) {
-
-		clbUser.getCurrentUserOnly().then(
-			function(response) {
-				console.log(response);
-			},
-			function(err) {
-				bbpOidcSession.login();
-			});
-
-		$scope.title = title;
-		$scope.scriptText = scriptText;
-		$scope.base_url = "";
-
-		var curdate = new Date();
-		$scope.job = {};
-
-		$scope.job.collab_id = 4293;  //default value
-		//$scope.job.log = " ";
-        $scope.job.status = "submitted";
-        //$scope.job.timestamp_completion = curdate.toUTCString();
-        $scope.job.code = $scope.scriptText;
-        $scope.job.command = "";
-        $scope.job.hardware_config = {};
-		$scope.hardware_platform = hardware_platform;
-        $scope.job.tags = ["gui"];
-        $scope.job.input_data = [];
-        //$scope.job.output_data = [];
-        //$scope.job.resource_uri = "";
-		$scope.inputs = [];
-		$scope.Simulation_time = Simulation_time;
-
-		if(($scope.hardware_platform == "") || ($scope.hardware_platform == null)){
-			$scope.hardware_platform = "BrainScaleS";
-		}
-
-		var ctx = null;
-		console.log($location);
-		console.log($location.search());
-		console.log(window.location);
-		if( $location.search().ctx ) {
-			ctx = $location.search().ctx;
-			console.log(ctx);
-			clbContext.get(ctx).then(
-				function(context) {
-					console.log("Collab id = " + context.collab.id);
-					$scope.job.collab_id = context.collab.id;
-				},
-				function(err) {
-					 console.log(err);
-				}
-			);
-		}
-		console.log("Context is " + ctx);
-
-		$scope.submitJob = function(job, jobService){
-			job_p = JSON.stringify(job);
-			console.log("Submitting job:");
-			console.log(job);
-			console.log(job_p);
-			try {
-				jobService.post(job_p, function(data, status){
-					console.log("success : +" + data + "/" + status );
-				})
-			} catch(error) {
-				console.log("error : " + error);
-			}
-			// .error(function(data, status){
-			//  	console.log("failled : +" + data + "/" + status );
-			// });
-		};
-
-		$scope.beforeClose = function(){
-			if(($scope.Simulation_time == null) || ($scope.Simulation_time.toString() == "")){
-				$scope.msgAlert = "Simulation time value is required."
-			} else if(($scope.Simulation_name == "") || ($scope.Simulation_name == null)){
-				$scope.msgAlert = "Simulation name value is required.";
-			} else {
-				$scope.close()
-			}
-		};
-		$scope.close = function() {
-			$scope.scriptText = python_script_string(cells, $scope.hardware_platform, $scope.Simulation_time, $scope.Simulation_name);
-			$scope.job.code = $scope.scriptText;
-			$scope.job.hardware_platform = $scope.hardware_platform;
-			$scope.job.timestamp_submission = curdate.toUTCString();
-			close({
-				hardware_platform: $scope.hardware_platform,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-			}, 100);
-			$scope.submitJob($scope.job, jobService);
-			$('.modal-backdrop').remove();
-		};
-		$scope.cancel = function() {
-			close({
-				hardware_platform: $scope.hardware_platform,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-			}, 100);
-			$('.modal-backdrop').remove();
-		};
-	}
-]);
-
-graphSchemaApp.controller('Dlg_script_python', ['$scope', '$element', 'title', 'close', 'filename', 'hardware_platform', 'Simulation_time', 'Simulation_name',
-	function($scope, $element, title, close, filename, hardware_platform, Simulation_time, Simulation_name){
-		$scope.title = title;
-		$scope.filename = filename;
-		$scope.hardware_platform = hardware_platform;
-		$scope.Simulation_time = Simulation_time;
-		$scope.Simulation_name = Simulation_name;
-
-		$scope.beforeClose = function(){
-			if(($scope.Simulation_time == null) || ($scope.Simulation_time.toString() == "")){
-				$scope.msgAlert = "Simulation time value is required.";
-			} else if(($scope.Simulation_name == "") || ($scope.Simulation_name == null)){
-				$scope.msgAlert = "Simulation name value is required.";
-			} else {
-				$scope.close();
-			}
-		};
-		$scope.close = function() {
-			close({
-				filename: $scope.filename,
-				hardware_platform: $scope.hardware_platform,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-			}, 100);
-			//$scope.submitJob($scope.job, jobService);
-			$('.modal-backdrop').remove();
-		};
-		$scope.cancel = function() {
-			close({
-				filename: $scope.filename,
-				hardware_platform: $scope.hardware_platform,
-				Simulation_time: $scope.Simulation_time,
-				Simulation_name: $scope.Simulation_name,
-			}, 100);
-			$('.modal-backdrop').remove();
-		};
-	}
-]);
+			//console.log("job id : " + data.objects[0].id);
+			console.log("neo_url : " + $scope.neo_url);
+		});
+	});
+});
