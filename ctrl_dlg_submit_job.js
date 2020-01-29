@@ -69,26 +69,8 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 			job_status.classList.remove('badge-success');
 			job_status.classList.add('badge-info');
 
-			try {
-				jobService.post(job_p, function(data, status){
-					job_status.textContent = JSON.parse(job_p).status;
-					job_status.classList.remove('badge-primary');
-					job_status.classList.remove('badge-danger');
-					job_status.classList.remove('badge-success');
-					job_status.classList.add('badge-info');
-				})
-			} catch(error) {
-				// console.log("error : " + error);
-				// console.log("job status (failled) : " + JSON.parse(job_p).status);
-				job_status.textContent = JSON.parse(job_p).status;
-				job_status.classList.remove('badge-primary');
-				job_status.classList.remove('badge-success');
-				job_status.classList.remove('badge-info');
-				job_status.classList.add('badge-danger');
-			}
-			// .error(function(data, status){
-			//  	console.log("failled : +" + data + "/" + status );
-			// });
+			return $http.post("https://nmpi-staging.hbpneuromorphic.eu/api/v2/queue", job_p)
+
 		};
 
 		$scope.beforeClose = function(){
@@ -105,13 +87,14 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 			$scope.job.code = $scope.scriptText;
 			$scope.job.hardware_platform = $scope.hardware_platform;
 			$scope.job.timestamp_submission = curdate.toUTCString();
+			var submitted_job = $scope.submitJob($scope.job, jobService);
 			close({
 				hardware_platform: $scope.hardware_platform,
 				Simulation_time: $scope.Simulation_time,
 				Simulation_name: $scope.Simulation_name,
 				timestamp_submission: $scope.job.timestamp_submission,
+				submitted_job: submitted_job
 			}, 100);
-			$scope.submitJob($scope.job, jobService);
 			$('.modal-backdrop').remove();
 		};
 		$scope.cancel = function() {
@@ -120,6 +103,7 @@ graphSchemaApp.controller('Dlg_submit_job', ['$scope', '$element', '$http', 'tit
 				Simulation_time: $scope.Simulation_time,
 				Simulation_name: $scope.Simulation_name,
 				timestamp_submission: $scope.job.timestamp_submission,
+				submitted_job_id: null
 			}, 100);
 			$('.modal-backdrop').remove();
 		};
