@@ -578,7 +578,7 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                         ")\n";
                     }
                     if(json_pop_param.celltype == "SpikeSourcePoisson"){
-                        str_inst += "sim.Population(" + json_pop_param.size + ", sim.SpikeSourcePoisson(" +
+                        str_inst += "pop_"+ val.id + " = sim.Population(" + json_pop_param.size + ", sim.SpikeSourcePoisson(" +
                         "rate=" + param_rate +
                         ", start=" + param_start +
                         ", duration=" + param_duration +
