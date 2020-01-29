@@ -4,6 +4,11 @@ var graphSchemaApp = angular.module('graphSchemaApp');
 graphSchemaApp.value('python_script_string', function(cells, hardware_platform, Simulation_time, Simulation_name) {
     var str_inst = "";
     var str_rwd = ""; //string for run and write_data function
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     angular.forEach(cells, function(val, key) {
         console.log("data cell : " + val.data_cell);
         if((val.data_cell == undefined) | (val.data_cell == null)) {
@@ -609,7 +614,7 @@ graphSchemaApp.value('python_script_string', function(cells, hardware_platform, 
                                 str_inst += "prj_"+ val.id +" = sim.Projection(pop_"+val.source.id+", pop_"+val.target.id+
                                 ", sim.FixedProbabilityConnector(" +
                                 json_pop_param.FixedProbability_p_connect + ", " +
-                                " allow_self_connections=" + json_pop_param.FixedProbability_allow_self_connections +
+                                " allow_self_connections=" + capitalizeFirstLetter(json_pop_param.FixedProbability_allow_self_connections.toString()) +
                                 ")," +
                                 "sim.StaticSynapse(weight=" + synaptic_weight + ", delay=" + synaptic_delay + "), receptor_type='" + json_pop_param.receptor_type+"')\n";
                             }
