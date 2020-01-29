@@ -1,4 +1,5 @@
 #div_toolbar img {
+    margin-top: 10px;
     vertical-align: top;
     float: left;
 }
@@ -133,13 +134,15 @@ table.mxPopupMenu tr {
     opacity: 1;
 }
 /* End of Tooltips css */
- 
+
 /* input[type=checkbox], input[type=radio]{
     display:none;
 } */
 
 #job_status{
     margin-bottom: 30px;
+    margin-top: 10px;
+    margin-left: 30px;
 }
 
 .hide_radio {
